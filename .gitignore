@@ -1,0 +1,4 @@
+*.o
+*.o.d
+as_exec
+tests/*.done
