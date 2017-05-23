@@ -14,7 +14,7 @@ allow the execution of classic Hello World program.
 | OP_JMP | jumps to specified address |
 | OP_HALT | terminate VM |
 
-## Build and Check
+## Build and Verify
 
 ```shell
 $ make
