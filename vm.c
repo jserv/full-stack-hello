@@ -23,13 +23,15 @@
 #define HANDLER OPCODE.handler
 
 #define OP(name) OP_##name
-#define OPCODES                                \
+
+#define BEGIN_OPCODES                          \
     const static void *labels[] = {OP_LABELS}; \
     goto *labels[OPCODE.opcode]
 
 #define DISPATCH \
     ++pc;        \
     goto *labels[OPCODE.opcode]
+
 #define END_OPCODES
 
 #define VM_GOTO(n) \
@@ -135,7 +137,7 @@ static inline vm_value *vm_get_op_value(vm_env *env, const vm_operand *op)
 void vm_run(vm_env *env)
 {
     size_t pc = 0;
-    OPCODES;
+    BEGIN_OPCODES;
 
     OP(ADD) : VM_CALL_HANDLER();
     DISPATCH;
