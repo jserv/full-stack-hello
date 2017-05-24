@@ -70,7 +70,7 @@ typedef struct __vm_env {
     int temps_count;
 } vm_env;
 
-#define OP_LABELS &&OP_ADD, &&OP_SUB, &&OP_PRINT, &&OP_JMP, &&OP_HALT
+#define OP_LABELS &&OP_HALT, &&OP_ADD, &&OP_SUB, &&OP_PRINT, &&OP_JMP
 
 vm_env *vm_new()
 {

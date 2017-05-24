@@ -35,7 +35,7 @@ typedef struct {
 #define VM_INT(_op) _op->value.vint
 
 /* opcode listing */
-enum { OP_ADD, OP_SUB, OP_PRINT, OP_JMP, OP_HALT };
+enum { OP_HALT, OP_ADD, OP_SUB, OP_PRINT, OP_JMP };
 
 typedef struct __vm_env vm_env;
 
