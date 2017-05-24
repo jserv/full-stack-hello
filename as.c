@@ -94,5 +94,8 @@ void assemble_from_file(vm_env *env, const char *filename)
     }
     free(line);
 
+    /* Add HALT to the end of instructions */
+    vm_add_inst(env, (vm_inst){.opcode = OP_HALT});
+
     fclose(fp);
 }
