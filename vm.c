@@ -3,6 +3,7 @@
 #include <string.h>
 
 #include "vm.h"
+#include "opcode.h"
 
 #if !defined(__GNUC__)
 #error "Only gcc is supported at present"
@@ -59,8 +60,6 @@ typedef struct __vm_env {
     int cpool_count;
     int temps_count;
 } vm_env;
-
-#define OP_LABELS &&OP_HALT, &&OP_ADD, &&OP_SUB, &&OP_PRINT, &&OP_JMP
 
 vm_env *vm_new()
 {

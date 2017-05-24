@@ -4,7 +4,7 @@ CC ?= gcc
 CFLAGS = -Wall -std=gnu99 -g
 
 .PHONY: all
-all: $(EXEC)
+all: opcode.h $(EXEC)
 
 OBJS = \
 	vm.o \
@@ -35,6 +35,9 @@ test:
 	python tests/runner.py
 
 clean:
-	$(RM) $(EXEC) $(OBJS) $(deps)
+	$(RM) $(EXEC) $(OBJS) $(deps) opcode.h
+
+opcode.h:
+	python scripts/gen_opcode.py opcode.h
 
 -include $(deps)
