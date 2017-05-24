@@ -2,6 +2,7 @@
 #include <stdlib.h>
 
 #include "vm.h"
+#include "opcode.h"
 
 #define UNIMPL                                       \
     do {                                             \
