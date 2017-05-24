@@ -3,6 +3,7 @@
 #include <string.h>
 
 #include "vm.h"
+#include "opcode.h"
 
 #if !defined(__GNUC__)
 #error "Only gcc is supported at present"
@@ -23,21 +24,13 @@
 #define OPCODE_IMPL(inst) env->impl[inst.opcode]
 #define HANDLER OPCODE.handler
 
-#define OP(name) OP_##name
-
-#define BEGIN_OPCODES                          \
-    const static void *labels[] = {OP_LABELS}; \
-    goto *labels[OPCODE.opcode]
-
 #define DISPATCH \
     ++pc;        \
-    goto *labels[OPCODE.opcode]
-
-#define END_OPCODES
+    goto next_opcode;
 
 #define VM_GOTO(n) \
     pc = n;        \
-    goto *labels[OPCODE.opcode]
+    goto next_opcode;
 
 #define VM_CALL_HANDLER()                                          \
     do {                                                           \
@@ -69,8 +62,6 @@ typedef struct __vm_env {
     int cpool_count;
     int temps_count;
 } vm_env;
-
-#define OP_LABELS &&OP_ADD, &&OP_SUB, &&OP_PRINT, &&OP_JMP, &&OP_HALT
 
 vm_env *vm_new()
 {
@@ -140,19 +131,21 @@ static inline vm_value *vm_get_op_value(vm_env *env, const vm_operand *op)
 void vm_run(vm_env *env)
 {
     size_t pc = 0;
-    BEGIN_OPCODES;
+    for (;;) {
+next_opcode:
+        switch (OPCODE.opcode) {
+        case OP_ADD:
+        case OP_SUB:
+        case OP_PRINT:
+            VM_CALL_HANDLER();
+            DISPATCH
+        case OP_JMP:
+            VM_GOTO(OPCODE.op1.value.id);
+        case OP_HALT:
+            goto terminate;
+        }
+    }
 
-    OP(ADD) : VM_CALL_HANDLER();
-    DISPATCH;
-    OP(SUB) : VM_CALL_HANDLER();
-    DISPATCH;
-    OP(PRINT) : VM_CALL_HANDLER();
-    DISPATCH;
-    OP(JMP) : VM_GOTO(OPCODE.op1.value.id);
-
-    OP(HALT) : goto terminate;
-
-    END_OPCODES;
 terminate:
     return;
 }

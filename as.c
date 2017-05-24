@@ -3,6 +3,7 @@
 #include <string.h>
 
 #include "vm.h"
+#include "opcode.h"
 
 struct instruction {
     const char *name;
