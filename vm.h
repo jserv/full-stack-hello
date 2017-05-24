@@ -34,7 +34,6 @@ typedef struct {
 #define VM_T(_op) _op->type
 #define VM_INT(_op) _op->value.vint
 
-
 typedef struct __vm_env vm_env;
 
 vm_env *vm_new();
@@ -42,7 +41,8 @@ void vm_free(vm_env *);
 
 size_t vm_add_const(vm_env *, int, void *);
 size_t vm_add_inst(vm_env *, vm_inst);
-void vm_hook_opcode_impl(vm_env *, int, vm_handler);
+
+void vm_hook_opcode_handler(vm_env *, int, vm_handler);
 
 void vm_run(vm_env *env);
 

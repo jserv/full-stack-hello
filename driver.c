@@ -49,9 +49,9 @@ int main(int argc, char **argv)
 
     assemble_from_file(env, argv[1]);
 
-    vm_hook_opcode_impl(env, OP_PRINT, print_impl);
-    vm_hook_opcode_impl(env, OP_ADD, add_impl);
-    vm_hook_opcode_impl(env, OP_SUB, sub_impl);
+    vm_hook_opcode_handler(env, OP_PRINT, print_impl);
+    vm_hook_opcode_handler(env, OP_ADD, add_impl);
+    vm_hook_opcode_handler(env, OP_SUB, sub_impl);
 
     vm_run(env);
 

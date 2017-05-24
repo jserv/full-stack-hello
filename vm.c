@@ -96,7 +96,7 @@ size_t vm_add_inst(vm_env *env, vm_inst inst)
     return env->insts_count++;
 }
 
-void vm_hook_opcode_impl(vm_env *env, int opcode, vm_handler handler)
+void vm_hook_opcode_handler(vm_env *env, int opcode, vm_handler handler)
 {
     env->impl[opcode].opcode = opcode;
     env->impl[opcode].handler = handler;
