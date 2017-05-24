@@ -16,6 +16,7 @@ static const struct instruction instrs[] = {{"add", OP_ADD, 1, 1, 1},
                                             {"sub", OP_SUB, 1, 1, 1},
                                             {"jmp", OP_JMP, 1, 0, 0},
                                             {"print", OP_PRINT, 1, 0, 0},
+                                            {"halt", OP_HALT},
                                             {NULL, 0}};
 
 static const struct instruction *find_inst(const char *name)
@@ -90,6 +91,8 @@ void assemble_from_file(vm_env *env, const char *filename)
     while (getline(&line, &size, fp) != -1) {
         if (line[0] == ';' || line[0] == '\n')
             continue;
+        /* Remove trailing newline feed */
+        line[strcspn(line, "\r\n")] = 0;
         assemble_line(env, line);
     }
     free(line);
