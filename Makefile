@@ -9,6 +9,7 @@ all: $(EXEC)
 OBJS = \
 	vm.o \
 	as.o \
+	opcode.o \
 	driver.o
 
 deps := $(OBJS:%.o=.%.o.d)
