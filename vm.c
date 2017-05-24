@@ -35,6 +35,7 @@
                            vm_get_op_value(env, &OPCODE.op1),      \
                            vm_get_op_value(env, &OPCODE.op2),      \
                            vm_get_temp_value(env, OPCODE.result)); \
+        DISPATCH;                                                  \
     } while (0)
 
 /* Constant pool max size */
@@ -132,11 +133,8 @@ void vm_run(vm_env *env)
     BEGIN_OPCODES;
 
     OP(ADD) : VM_CALL_HANDLER();
-    DISPATCH;
     OP(SUB) : VM_CALL_HANDLER();
-    DISPATCH;
     OP(PRINT) : VM_CALL_HANDLER();
-    DISPATCH;
     OP(JMP) : VM_GOTO(OPCODE.op1.value.id);
 
     OP(HALT) : goto terminate;
