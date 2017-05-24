@@ -38,7 +38,7 @@ test: $(EXEC)
 clean:
 	$(RM) $(EXEC) $(OBJS) $(deps) opcode.h
 
-opcode.h: scripts/gen_opcode.py opcode.list
+opcode.h: scripts/gen_opcode.py opcode.def
 	@python scripts/gen_opcode.py $@
 
 -include $(deps)
