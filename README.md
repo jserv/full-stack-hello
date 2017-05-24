@@ -11,7 +11,7 @@ allow the execution of classic Hello World program.
 | OP_ADD | sum two operands |
 | OP_SUB | subtracts two operands |
 | OP_PRINT | print |
-| OP_JMP | jumps to specified address |
+| OP_JMP | jump to specified address |
 | OP_HALT | terminate VM |
 
 ## Build and Verify
@@ -23,8 +23,10 @@ cc -Wall -std=gnu99 -g -c -o as.o -MMD -MF .as.o.d as.c
 cc -Wall -std=gnu99 -g -c -o driver.o -MMD -MF .driver.o.d driver.c
 cc -Wall -std=gnu99 -g -o as_exec vm.o as.o driver.o
 $ make check
-Hello
+42
+tests/halt.s pass
 
+Hello
 tests/hello.s pass
 
 42
@@ -36,7 +38,7 @@ $ make test
 python tests/run_tests.py
 ..
 ----------------------------------------------------------------------
-Ran 2 tests in 0.002s
+Ran 3 tests in 0.002s
 
 OK
 ```
