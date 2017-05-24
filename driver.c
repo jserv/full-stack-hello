@@ -7,6 +7,10 @@ extern void assemble_from_file(vm_env *, const char *);
 
 int main(int argc, char **argv)
 {
+    /* always accept one argument */
+    if (argc < 2)
+        return -1;
+
     vm_env *env = vm_new();
 
     assemble_from_file(env, argv[1]);
