@@ -18,6 +18,18 @@ def get_exec_output(testfile):
     return subprocess.check_output(['./as_exec', '%s.s' % testfile])
 
 
+def with_metaclass(meta, *bases):
+    """Create a base class with a metaclass."""
+    # This requires a bit of explanation: the basic idea is to make a dummy
+    # metaclass for one level of class instantiation that replaces itself with
+    # the actual metaclass.
+    class metaclass(meta):
+
+        def __new__(cls, name, this_bases, d):
+            return meta(name, bases, d)
+    return type.__new__(metaclass, 'temporary_class', (), {})
+
+
 class TestRunnerMeta(type):
 
     def __new__(mcs, name, bases, dict):
@@ -35,7 +47,7 @@ class TestRunnerMeta(type):
         return type.__new__(mcs, name, bases, dict)
 
 
-class TestRunner(unittest.TestCase, metaclass=TestRunnerMeta):
+class TestRunner(with_metaclass(TestRunnerMeta, unittest.TestCase)):
     pass
 
 
