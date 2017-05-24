@@ -4,7 +4,7 @@ CC ?= gcc
 CFLAGS = -Wall -std=gnu99 -g
 
 .PHONY: all
-all: $(EXEC)
+all: regen-opcode $(EXEC)
 
 OBJS = \
 	vm.o \
@@ -36,5 +36,9 @@ test:
 
 clean:
 	$(RM) $(EXEC) $(OBJS) $(deps)
+
+.PHONY: regen-opcode
+regen-opcode:
+	python scripts/gen_opcode.py opcode.h
 
 -include $(deps)
