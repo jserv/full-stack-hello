@@ -40,7 +40,7 @@ static void print_impl(VM_HANDLER_ARGS)
     }
 }
 
-void assemble_from_file(vm_env *, const char *);
+extern void assemble_from_file(vm_env *, const char *);
 
 int main(int argc, char **argv)
 {
@@ -51,7 +51,6 @@ int main(int argc, char **argv)
     vm_hook_opcode_impl(env, OP_PRINT, print_impl);
     vm_hook_opcode_impl(env, OP_ADD, add_impl);
     vm_hook_opcode_impl(env, OP_SUB, sub_impl);
-
 
     vm_run(env);
 

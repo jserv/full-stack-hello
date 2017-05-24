@@ -12,12 +12,10 @@ struct instruction {
     int has_result;
 };
 
-static const struct instruction instrs[] = {{"add", OP_ADD, 1, 1, 1},
-                                            {"sub", OP_SUB, 1, 1, 1},
-                                            {"jmp", OP_JMP, 1, 0, 0},
-                                            {"print", OP_PRINT, 1, 0, 0},
-                                            {"halt", OP_HALT},
-                                            {NULL, 0}};
+static const struct instruction instrs[] = {
+    {"add", OP_ADD, 1, 1, 1}, {"sub", OP_SUB, 1, 1, 1},
+    {"jmp", OP_JMP, 1, 0, 0}, {"print", OP_PRINT, 1, 0, 0},
+    {"halt", OP_HALT},        {NULL, 0}};
 
 static const struct instruction *find_inst(const char *name)
 {

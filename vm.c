@@ -28,14 +28,14 @@
     pc = n;        \
     goto *labels[OPCODE.opcode]
 
-#define VM_CALL_HANDLER()                                          \
-    do {                                                           \
-        if (OPCODE_IMPL(OPCODE).handler)                           \
-            OPCODE_IMPL(OPCODE).handler(                           \
-                           vm_get_op_value(env, &OPCODE.op1),      \
-                           vm_get_op_value(env, &OPCODE.op2),      \
-                           vm_get_temp_value(env, OPCODE.result)); \
-        DISPATCH;                                                  \
+#define VM_CALL_HANDLER()                               \
+    do {                                                \
+        if (OPCODE_IMPL(OPCODE).handler)                \
+            OPCODE_IMPL(OPCODE).handler(                \
+                vm_get_op_value(env, &OPCODE.op1),      \
+                vm_get_op_value(env, &OPCODE.op2),      \
+                vm_get_temp_value(env, OPCODE.result)); \
+        DISPATCH;                                       \
     } while (0)
 
 /* Constant pool max size */
@@ -51,9 +51,9 @@
 #define OPCODE_IMPL_MAX_SIZE 256
 
 typedef struct __vm_env {
-    vm_inst insts[INSTS_MAX_SIZE];  /* Program instructions */
-    vm_value cpool[CPOOL_MAX_SIZE]; /* Constant pool */
-    vm_value temps[TEMPS_MAX_SIZE]; /* Temporary storage */
+    vm_inst insts[INSTS_MAX_SIZE];             /* Program instructions */
+    vm_value cpool[CPOOL_MAX_SIZE];            /* Constant pool */
+    vm_value temps[TEMPS_MAX_SIZE];            /* Temporary storage */
     vm_opcode_impl impl[OPCODE_IMPL_MAX_SIZE]; /* OPCODE impl */
     int insts_count;
     int cpool_count;
