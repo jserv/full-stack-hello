@@ -8,17 +8,6 @@
 #error "Only gcc is supported at present"
 #endif
 
-#define GCC_VERSION \
-    (__GNUC__ * 1000 + __GNUC_MINOR__ * 100 + __GNUC_PATCHLEVEL__)
-
-#if GCC_VERSION >= 40500
-#define EMPTY_SWITCH_DEFAULT_CASE() __builtin_unreachable()
-#else
-#define EMPTY_SWITCH_DEFAULT_CASE() \
-    default:                        \
-        break
-#endif
-
 #define OPCODE env->insts[pc]
 #define OPCODE_IMPL(inst) env->impl[inst.opcode]
 #define HANDLER OPCODE.handler
