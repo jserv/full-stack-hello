@@ -4,7 +4,7 @@ CC ?= gcc
 CFLAGS = -Wall -std=gnu99 -g
 
 .PHONY: all
-all: opcode.h $(EXEC)
+all: $(EXEC)
 
 OBJS = \
 	vm.o \
@@ -17,7 +17,7 @@ deps := $(OBJS:%.o=.%.o.d)
 $(EXEC): $(OBJS)
 	$(CC) $(CFLAGS) -o $@ $^ $(LDFLAGS)
 
-%.o: %.c
+%.o: %.c opcode.h
 	$(CC) $(CFLAGS) -c -o $@ -MMD -MF .$@.d $<
 
 TEST_SRCS = $(wildcard tests/*.s)
@@ -31,13 +31,13 @@ tests/%.done: tests/%.s
 check: $(EXEC) $(TEST_DONE)
 	@$(RM) $(TEST_DONE)
 
-test:
-	python tests/runner.py
+test: $(EXEC)
+	@python tests/runner.py
 
 clean:
 	$(RM) $(EXEC) $(OBJS) $(deps) opcode.h
 
-opcode.h:
-	python scripts/gen_opcode.py opcode.h
+opcode.h: scripts/gen_opcode.py opcode.list
+	@python scripts/gen_opcode.py $@
 
 -include $(deps)
