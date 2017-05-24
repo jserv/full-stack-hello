@@ -71,7 +71,7 @@ def main():
     else:
         to_file = 'opcode.h'
 
-    with open('opcode.list', newline='') as csvfile:
+    with open('opcode.list') as csvfile:
         reader = csv.reader(csvfile, delimiter=',', quotechar='"')
         next(reader)  # Skip header line
 
