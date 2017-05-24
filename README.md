@@ -18,7 +18,27 @@ allow the execution of classic Hello World program.
 
 ```shell
 $ make
+cc -Wall -std=gnu99 -g -c -o vm.o -MMD -MF .vm.o.d vm.c
+cc -Wall -std=gnu99 -g -c -o as.o -MMD -MF .as.o.d as.c
+cc -Wall -std=gnu99 -g -c -o driver.o -MMD -MF .driver.o.d driver.c
+cc -Wall -std=gnu99 -g -o as_exec vm.o as.o driver.o
 $ make check
+Hello
+
+tests/hello.s pass
+
+42
+50
+150
+tests/test.s pass
+
+$ make test
+python tests/run_tests.py
+..
+----------------------------------------------------------------------
+Ran 2 tests in 0.002s
+
+OK
 ```
 
 ## Licensing

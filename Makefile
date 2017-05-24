@@ -31,6 +31,9 @@ tests/%.done: tests/%.s
 check: $(EXEC) $(TEST_DONE)
 	@$(RM) $(TEST_DONE)
 
+test:
+	python tests/run_tests.py
+
 clean:
 	$(RM) $(EXEC) $(OBJS) $(deps)
 
