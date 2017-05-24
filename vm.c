@@ -20,6 +20,7 @@
 #endif
 
 #define OPCODE env->insts[pc]
+#define OPCODE_IMPL(inst) env->impl[inst.opcode]
 #define HANDLER OPCODE.handler
 
 #define OP(name) OP_##name
@@ -40,8 +41,9 @@
 
 #define VM_CALL_HANDLER()                                          \
     do {                                                           \
-        if (OPCODE.handler)                                        \
-            OPCODE.handler(vm_get_op_value(env, &OPCODE.op1),      \
+        if (OPCODE_IMPL(OPCODE).handler)                           \
+            OPCODE_IMPL(OPCODE).handler(                           \
+                           vm_get_op_value(env, &OPCODE.op1),      \
                            vm_get_op_value(env, &OPCODE.op2),      \
                            vm_get_temp_value(env, OPCODE.result)); \
     } while (0)
@@ -55,10 +57,14 @@
 /* Temporary storage max size */
 #define TEMPS_MAX_SIZE 150
 
+/* OPCODE impl max size */
+#define OPCODE_IMPL_MAX_SIZE 256
+
 typedef struct __vm_env {
     vm_inst insts[INSTS_MAX_SIZE];  /* Program instructions */
     vm_value cpool[CPOOL_MAX_SIZE]; /* Constant pool */
     vm_value temps[TEMPS_MAX_SIZE]; /* Temporary storage */
+    vm_opcode_impl impl[OPCODE_IMPL_MAX_SIZE]; /* OPCODE impl */
     int insts_count;
     int cpool_count;
     int temps_count;
@@ -101,13 +107,10 @@ size_t vm_add_inst(vm_env *env, vm_inst inst)
     return env->insts_count++;
 }
 
-void vm_hook_inst(vm_env *env, int opcode, vm_handler handler)
+void vm_hook_opcode_impl(vm_env *env, int opcode, vm_handler handler)
 {
-    /* FIXME: avoid repeated iteration */
-    for (int i = 0; i < env->insts_count; ++i) {
-        if (opcode == env->insts[i].opcode)
-            env->insts[i].handler = handler;
-    }
+    env->impl[opcode].opcode = opcode;
+    env->impl[opcode].handler = handler;
 }
 
 static inline size_t vm_get_temp(vm_env *env)
