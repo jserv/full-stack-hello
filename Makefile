@@ -32,7 +32,7 @@ check: $(EXEC) $(TEST_DONE)
 	@$(RM) $(TEST_DONE)
 
 test:
-	python tests/run_tests.py
+	python tests/runner.py
 
 clean:
 	$(RM) $(EXEC) $(OBJS) $(deps)

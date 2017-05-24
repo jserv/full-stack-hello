@@ -4,7 +4,7 @@ import subprocess
 import unittest
 
 
-class HelloTest(unittest.TestCase):
+class TestRunner(unittest.TestCase):
     def get_output(self, testfile):
         return subprocess.check_output(['./as_exec', 'tests/%s' % (testfile)])
 
