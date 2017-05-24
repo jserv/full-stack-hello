@@ -6,7 +6,7 @@ import subprocess
 import unittest
 
 
-testfile = map(lambda x: x.strip('.s'), glob.glob('tests/*.s'))
+testfile = map(lambda f: f.strip('.s'), glob.glob('tests/*.s'))
 
 
 def get_expect_output(testfile):
