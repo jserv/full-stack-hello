@@ -1,5 +1,5 @@
 #! /usr/bin/env python
-"""Generate OPCODE from opcode.list"""
+"""Generate opcode.h from opcode.list"""
 
 import sys
 import csv
