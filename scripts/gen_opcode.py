@@ -8,7 +8,7 @@ import csv
 class OPCODE(object):
     def __init__(self, name, code, has_arg1, has_arg2, has_result):
         self.name = name.upper()
-        self.code = code
+        self.code = int(code)
         self.has_arg1 = has_arg1
         self.has_arg2 = has_arg2
         self.has_result = has_result
