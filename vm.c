@@ -50,7 +50,7 @@
 /* OPCODE impl max size */
 #define OPCODE_IMPL_MAX_SIZE 256
 
-typedef struct __vm_env {
+struct __vm_env {
     vm_inst insts[INSTS_MAX_SIZE];             /* Program instructions */
     vm_value cpool[CPOOL_MAX_SIZE];            /* Constant pool */
     vm_value temps[TEMPS_MAX_SIZE];            /* Temporary storage */
@@ -58,7 +58,7 @@ typedef struct __vm_env {
     int insts_count;
     int cpool_count;
     int temps_count;
-} vm_env;
+};
 
 vm_env *vm_new()
 {
