@@ -8,20 +8,20 @@ import csv
 class OPCODE(object):
     def __init__(self, name, code, has_arg1, has_arg2, has_result):
         self.name = name.upper()
-        self.code = code
-        self.has_arg1 = has_arg1
-        self.has_arg2 = has_arg2
-        self.has_result = has_result
+        self.code = int(code)
+        self.has_arg1 = int(has_arg1)
+        self.has_arg2 = int(has_arg2)
+        self.has_result = int(has_result)
 
     def __gt__(self, others):
         return self.code > others.code
 
     def __str__(self):
-        return '{"%s", OP_%s, %s, %s, %s}' % (
+        return '{{"{}", OP_{}, {}, {}, {}}}'.format(
             self.name.lower(), self.name, self.has_arg1, self.has_arg2, self.has_result)
 
     def __repr__(self):
-        return '%s - %s' % (self.name, self.code)
+        return '{} - {}'.format(self.name, self.code)
 
 
 def write_opcode(to, opcodes):
@@ -37,13 +37,13 @@ def write_opcode(to, opcodes):
 enum {\n''')
 
         # Write opcode list
-        f.write(',\n'.join(['    OP_%s = %s' % (op.name, op.code) for op in opcodes]))
+        f.write(',\n'.join(['    OP_{} = {}'.format(op.name, op.code) for op in opcodes]))
         f.write('\n};\n\n')
 
         # Write opcode labels
         f.write('#define OP_LABELS ')
         for index, op in enumerate(opcodes):
-            f.write('&&OP_%s, ' % (op.name))
+            f.write('&&OP_{}, '.format(op.name))
             if index and index % 4 == 0:
                 f.write('\\\n')
                 if op != opcodes[-1]:
@@ -59,11 +59,11 @@ enum {\n''')
     int has_result;
 };\n\n''')
         f.write('static const struct instruction instrs[] = {\n')
-        f.write(',\n'.join(['    %s' % op for op in opcodes]))
+        f.write(',\n'.join(['    {}'.format(op) for op in opcodes]))
         f.write(',\n    {NULL, 0}\n};')
 
         # Write helper function(s)
-        f.write('\n\nvoid hook_opcodes(vm_env *);');
+        f.write('\n\nvoid hook_opcodes(vm_env *);')
         f.write('\n\n#endif /* OPCODE_H */\n')
 
 
