@@ -9,8 +9,8 @@ allow the execution of classic Hello World program.
 | Opcode  | Description |
 | ------------- | ------------- |
 | OP_ADD | sum two operands |
-| OP_SUB | subtracts two operands |
-| OP_PRINT | print |
+| OP_SUB | subtract two operands |
+| OP_PRINT | print integer or string |
 | OP_JMP | jump to specified address |
 | OP_HALT | terminate VM |
 
