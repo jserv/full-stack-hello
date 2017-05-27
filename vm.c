@@ -28,6 +28,23 @@
     pc = n;        \
     goto *labels[OPCODE.opcode]
 
+#define VM_J_TYPE_INST(cond)                                     \
+    do {                                                         \
+        int gle = vm_get_op_value(env, &OPCODE.op1)->value.vint; \
+        if (gle cond 0) {                                        \
+            pc = OPCODE.op2.value.id;                            \
+            goto *labels[OPCODE.opcode];                         \
+        }                                                        \
+        DISPATCH;                                                \
+    } while (0)
+
+#define VM_JLT() VM_J_TYPE_INST(<)
+#define VM_JLE() VM_J_TYPE_INST(<=)
+#define VM_JZ() VM_J_TYPE_INST(==)
+#define VM_JGE() VM_J_TYPE_INST(>=)
+#define VM_JGT() VM_J_TYPE_INST(>)
+#define VM_JNZ() VM_J_TYPE_INST(!=)
+
 #define VM_CALL_HANDLER()                               \
     do {                                                \
         if (OPCODE_IMPL(OPCODE).handler)                \
@@ -133,6 +150,12 @@ void vm_run(vm_env *env)
     OP(ADD) : VM_CALL_HANDLER();
     OP(SUB) : VM_CALL_HANDLER();
     OP(PRINT) : VM_CALL_HANDLER();
+    OP(JLT) : VM_JLT();
+    OP(JLE) : VM_JLE();
+    OP(JZ) : VM_JZ();
+    OP(JGE) : VM_JGE();
+    OP(JGT) : VM_JGT();
+    OP(JNZ) : VM_JNZ();
     OP(JMP) : VM_GOTO(OPCODE.op1.value.id);
 
     OP(HALT) : goto terminate;
