@@ -26,6 +26,15 @@ static void sub_impl(VM_HANDLER_ARGS)
     }
 }
 
+static void mul_impl(VM_HANDLER_ARGS)
+{
+    if (VM_T(op1) == INT && VM_T(op1) == VM_T(op2)) {
+        VM_INT(result) = VM_INT(op1) * VM_INT(op2);
+    } else {
+        UNIMPL;
+    }
+}
+
 static void print_impl(VM_HANDLER_ARGS)
 {
     switch (VM_T(op1)) {
@@ -45,4 +54,5 @@ void hook_opcodes(vm_env *env)
     vm_hook_opcode_handler(env, OP_PRINT, print_impl);
     vm_hook_opcode_handler(env, OP_ADD, add_impl);
     vm_hook_opcode_handler(env, OP_SUB, sub_impl);
+    vm_hook_opcode_handler(env, OP_MUL, mul_impl);
 }
