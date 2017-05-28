@@ -13,9 +13,16 @@ static const struct instruction *find_inst(const char *name)
     return NULL;
 }
 
-static inline vm_operand make_operand(vm_env *env, const char *data)
+static inline vm_operand make_operand(vm_env *env, char *line, const char *data)
 {
     vm_operand op;
+
+    if (data == NULL || data[0] == ';') {
+        printf("Error: missing operand in the following line\n");
+        printf("       %s\n", line);
+        free(line);
+        exit(-1);
+    }
 
     switch (data[0]) {
     case '$':
@@ -31,12 +38,44 @@ static inline vm_operand make_operand(vm_env *env, const char *data)
         op.type = CONST;
         op.value.id = vm_add_const(env, STR, strdup(data + 1));
         break;
+    default:
+        printf("Error: please specify operand type for '%s' in the following line\n"
+               "       %s\n\n"
+               "Supported types:\n"
+               "       $ (constant integer)\n"
+               "       # (temp integer)\n"
+               "       ^ (constant string\n", data, line);
+        free(line);
+        exit(-1);
+        break;
     }
     return op;
 }
 
+static inline int make_result(vm_env *env, char *line, const char *data)
+{
+    if (data == NULL || data[0] == ';') {
+        printf("Error: missing result in the following line\n"
+               "       %s\n", line);
+        free(line);
+        exit(-1);
+    }
+
+    if (data[0] != '#') {
+        printf("Error: please specify result for '%s' in the following line\n"
+               "       %s\n\n"
+               "Supported types:\n"
+               "       # (temp integer)\n", data, line);
+        free(line);
+        exit(-1);
+    }
+
+    return atoi(data + 1);
+}
+
 static void assemble_line(vm_env *env, char *line)
 {
+    char *line_backup = strdup(line);
     char *mnemonic = strtok(line, " ");
     char *op1 = strtok(NULL, " ");
     char *op2 = strtok(NULL, " ");
@@ -54,13 +93,15 @@ static void assemble_line(vm_env *env, char *line)
     new_inst.opcode = inst->opcode;
 
     if (inst->has_op1)
-        new_inst.op1 = make_operand(env, op1);
+        new_inst.op1 = make_operand(env, line_backup, op1);
     if (inst->has_op2)
-        new_inst.op2 = make_operand(env, op2);
+        new_inst.op2 = make_operand(env, line_backup, op2);
     if (inst->has_result)
-        new_inst.result = atoi(result + 1);
+        new_inst.result = make_result(env, line_backup, result);
 
     vm_add_inst(env, new_inst);
+
+    free(line_backup);
 }
 
 void assemble_from_file(vm_env *env, const char *filename)
