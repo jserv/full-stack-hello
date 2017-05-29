@@ -64,6 +64,34 @@
         DISPATCH;                                       \
     } while (0)
 
+/* Constant pool max size */
+#define CPOOL_MAX_SIZE 100
+
+/* Instruction max size */
+#define INSTS_MAX_SIZE 200
+
+/* Temporary storage max size */
+#define TEMPS_MAX_SIZE 150
+
+/* OPCODE impl max size */
+#define OPCODE_IMPL_MAX_SIZE 256
+
+/* Labels max size */
+#define LABELS_MAX_SIZE 256
+
+struct __vm_env {
+    vm_inst insts[INSTS_MAX_SIZE];                /* Program instructions */
+    vm_value cpool[CPOOL_MAX_SIZE];               /* Constant pool */
+    vm_value temps[TEMPS_MAX_SIZE];               /* Temporary storage */
+    vm_opcode_impl impl[OPCODE_IMPL_MAX_SIZE];    /* OPCODE impl */
+    vm_label labels[LABELS_MAX_SIZE];             /* Labels */
+    vm_operand *label_reference[LABELS_MAX_SIZE]; /* Operand's label reference */
+    int insts_count;
+    int cpool_count;
+    int temps_count;
+    int labels_count;
+    int label_reference_count;
+};
 
 vm_env *vm_new()
 {
