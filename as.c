@@ -1,3 +1,4 @@
+#include <ctype.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -38,13 +39,25 @@ static inline vm_operand make_operand(vm_env *env, char *line, const char *data)
         op.type = CONST;
         op.value.id = vm_add_const(env, STR, strdup(data + 1));
         break;
+    case ':':
+        /*
+         * This will not fill the label's next pc to op.value.id
+         * when calling `make_operand`.
+         * When `vm_add_inst`, it will add this label reference into env, then
+         * call `vm_hook_label` to get the actuall label's next_pc
+         */
+        op.type = LABEL;
+        op.value.id = -1;  /* Label not found */
+        op.label = strdup(data + 1);
+        break;
     default:
         printf("Error: please specify operand type for '%s' in the following line\n"
                "       %s\n\n"
                "Supported types:\n"
                "       $ (constant integer)\n"
                "       # (temp integer)\n"
-               "       ^ (constant string\n", data, line);
+               "       ^ (constant string)\n"
+               "       : (label)\n", data, line);
         free(line);
         exit(-1);
         break;
@@ -84,6 +97,13 @@ static void assemble_line(vm_env *env, char *line)
     const struct instruction *inst = find_inst(mnemonic);
 
     if (!inst) {
+        /* Check label */
+        if (strlen(mnemonic) > 1 &&
+                mnemonic[strlen(mnemonic) - 1] == ':') {
+            mnemonic[strlen(mnemonic) - 1] = '\0';
+            vm_add_label(env, isdigit(mnemonic[0]), mnemonic);
+            goto cleanup;
+        }
         printf("Error: instruction `%s' not found\n", mnemonic);
         exit(1);
     }
@@ -101,6 +121,7 @@ static void assemble_line(vm_env *env, char *line)
 
     vm_add_inst(env, new_inst);
 
+cleanup:
     free(line_backup);
 }
 

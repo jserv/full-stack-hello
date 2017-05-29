@@ -16,6 +16,7 @@ int main(int argc, char **argv)
     assemble_from_file(env, argv[1]);
 
     hook_opcodes(env);
+    vm_hook_label(env);
     vm_run(env);
 
     vm_free(env);
