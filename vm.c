@@ -26,7 +26,7 @@
 #define END_OPCODES
 
 #define VM_GOTO(n)  \
-    if (OPCODE.op1.type == LABEL && n == -1) {  \
+    if (VM_T(OPCODE.op1) == LABEL && n == -1) {  \
         printf("Error: Undefined label \"%s\".\n", OPCODE.op1.label); \
         exit(-1);                             \
     }                                         \
@@ -37,11 +37,11 @@
     do {                                                         \
         int gle = vm_get_op_value(env, &OPCODE.op1)->value.vint; \
         if (gle cond 0) {                                        \
-            if (OPCODE.op2.type == LABEL && OPCODE.op2.value.id == -1) {      \
+            if (VM_T(OPCODE.op2) == LABEL && VM_INT(OPCODE.op2) == -1) {      \
                 printf("Error: Undefined label \"%s\".\n", OPCODE.op2.label); \
                 exit(-1);                                        \
             }                                                    \
-            pc = OPCODE.op2.value.id;                            \
+            pc = VM_INT(OPCODE.op2);                             \
             goto *labels[OPCODE.opcode];                         \
         }                                                        \
         DISPATCH;                                                \
