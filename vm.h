@@ -38,6 +38,8 @@ typedef struct {
     int next_pc;
 } vm_label;
 
+#define LABLE_NOT_FOUND -1
+
 #define VM_T(_op) _op->type
 #define VM_INT(_op) _op->value.vint
 

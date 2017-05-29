@@ -47,7 +47,7 @@ static inline vm_operand make_operand(vm_env *env, char *line, const char *data)
          * call `vm_hook_label` to get the actuall label's next_pc
          */
         op.type = LABEL;
-        op.value.id = -1;  /* Label not found */
+        op.value.id = LABEL_NOT_FOUND;
         op.label = strdup(data + 1);
         break;
     default:
