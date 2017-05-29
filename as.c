@@ -98,9 +98,9 @@ static void assemble_line(vm_env *env, char *line)
 
     if (!inst) {
         /* Check label */
-        if (strlen(mnemonic) > 1 &&
-                mnemonic[strlen(mnemonic) - 1] == ':') {
-            mnemonic[strlen(mnemonic) - 1] = '\0';
+        int mlen = strlen(mnemonic);
+        if (mlen > 1 && mnemonic[mlen - 1] == ':') {
+            mnemonic[mlen - 1] = '\0';
             vm_add_label(env, isdigit(mnemonic[0]), mnemonic);
             goto cleanup;
         }
