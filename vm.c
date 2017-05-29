@@ -130,7 +130,7 @@ static inline vm_value *vm_get_temp_value(vm_env *env, int id)
 
 static inline vm_value *vm_get_op_value(vm_env *env, const vm_operand *op)
 {
-    switch (op->type) {
+    switch (VM_T(op)) {
     case CONST:
         return &env->cpool[op->value.id];
     case TEMP:
