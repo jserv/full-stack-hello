@@ -7,3 +7,7 @@ jmp #6
 sub #2 $16 #3		; skipped because previous jump
 add #2 $100 #3		; to be executed
 print #3
+mul $-2 $2 #4           ; multiply: (-2)*(2)
+mul $-2 $-40 #5         ; multiply: (-2)*(-40)
+print #4
+print #5
