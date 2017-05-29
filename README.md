@@ -34,7 +34,7 @@ $ make check
 42
 tests/halt.s pass
 
-Hello
+Hello World
 tests/hello.s pass
 
 42
@@ -46,7 +46,7 @@ $ make test
 python tests/run_tests.py
 ..
 ----------------------------------------------------------------------
-Ran 3 tests in 0.002s
+Ran 4 tests in 0.002s
 
 OK
 ```
