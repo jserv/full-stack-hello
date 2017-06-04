@@ -4,6 +4,7 @@
 
 #include "elf.h"
 #include "vm.h"
+#include "vm_codegen.h"
 #include "opcode.h"
 
 #define NOT_IN_QUOTE '\0'

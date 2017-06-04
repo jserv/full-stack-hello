@@ -2,6 +2,7 @@
 #include <string.h>
 
 #include "vm.h"
+#include "vm_codegen.h"
 #include "opcode.h"
 
 #if !defined(__GNUC__)
