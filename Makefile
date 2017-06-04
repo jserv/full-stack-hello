@@ -10,7 +10,8 @@ OBJS = \
 	vm.o \
 	as.o \
 	opcode.o \
-	driver.o
+	driver.o \
+	elf.o
 
 deps := $(OBJS:%.o=.%.o.d)
 

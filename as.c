@@ -2,6 +2,7 @@
 #include <stdlib.h>
 #include <string.h>
 
+#include "elf.h"
 #include "vm.h"
 #include "opcode.h"
 
@@ -251,16 +252,11 @@ static void assemble_line(vm_env *env, char *line)
     free(line_backup);
 }
 
-void assemble_from_file(vm_env *env, const char *filename)
+void assemble_from_fd(vm_env *env, int fd)
 {
     char *line = NULL;
     size_t size = 0;
-    FILE *fp = fopen(filename, "r");
-
-    if (!fp) {
-        printf("Error: %m\n");
-        exit(1);
-    }
+    FILE *fp = fdopen(fd, "r");
 
     while (getline(&line, &size, fp) != -1) {
         if (line[0] == ';' || line[0] == '\n')
@@ -270,6 +266,113 @@ void assemble_from_file(vm_env *env, const char *filename)
         assemble_line(env, line);
     }
     free(line);
+}
 
-    fclose(fp);
+#define ALIGN_TYPE  long
+#define ALIGN_WIDTH sizeof(ALIGN_TYPE)
+
+static inline int mem_not_empty(void *p, size_t len)
+{
+    void *c = p;
+
+    while (c < (p + len) && ((ALIGN_TYPE)c % ALIGN_WIDTH)) {
+        if (*(char *)p)
+            return 1;
+        c++;
+    }
+
+    while (c < (p + len - ALIGN_WIDTH + 1)) {
+        if (*(ALIGN_TYPE *)c)
+            return 1;
+        c += ALIGN_WIDTH;
+    }
+
+    while (c < (p + len)) {
+        if (*(char *)p)
+            return 1;
+        c++;
+    }
+
+    return 0;
+}
+
+int write_to_elf(vm_env *env, int fd)
+{
+    vm_seg_info *info_head;
+    vm_seg_info *s;
+    elf *e;
+    int sz;
+    int len;
+    unsigned short ph_rows;
+
+    ph_rows = vm_get_seg_info(env, &info_head);
+
+    e = elf_init();
+
+    elf_new_prog_hdrs(e, ph_rows);
+
+    s = info_head;
+    for (int i = 0; i < ph_rows; i++, s = vm_get_next_seg_info(s)) {
+        size_t ssz = vm_get_seg_size(s);
+        void *mem = vm_get_seg_mem(s);
+        elf_set_prog_hdr(e, i, ssz, ssz * mem_not_empty(mem, ssz));
+    }
+
+    len = elf_write_file_hdr(fd, e);
+    if (len < 0) {
+        vm_free_seg_info(info_head);
+        return -1;
+    }
+
+    s = info_head;
+    for (int i = 0; i < ph_rows; i++, s = vm_get_next_seg_info(s)) {
+        void *mem = vm_get_seg_mem(s);
+        if ((sz = elf_write_prog_seg(e, fd, i, mem)) < 0) {
+            vm_free_seg_info(info_head);
+            return -1;
+        } else
+            len += sz;
+    }
+
+    vm_free_seg_info(info_head);
+    return len;
+}
+
+int load_from_elf(vm_env *env, int fd)
+{
+    vm_seg_info *info_head = NULL;
+    vm_seg_info *s;
+    elf *e;
+    unsigned short ph_rows;
+
+    e = elf_read_file_hdr(fd);
+    if (!e)
+        return -1;
+
+    ph_rows = elf_read_prog_hdrs(e, fd);
+
+    for (int i = 0; i < ph_rows; i++) {
+        char *mem = NULL;
+        size_t sz = 0;
+
+        if (elf_read_prog_seg(e, fd, i, &mem, &sz) < 0)
+            ; /* TODO */
+
+        s = vm_new_seg_info(mem, sz);
+
+        if (!info_head) {
+            info_head = s;
+        } else {
+            vm_append_seg_info(info_head, s);
+        }
+    }
+
+    if (vm_set_seg_info(env, info_head) < 0) {
+        vm_seg_info_free_list(info_head);
+        return -1;
+    }
+
+    vm_seg_info_free_list(info_head);
+
+    return -1;
 }

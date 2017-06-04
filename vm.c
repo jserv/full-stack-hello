@@ -77,6 +77,12 @@ struct __vm_env {
     int temps_count;
 };
 
+struct __vm_seg_info {
+    char *mem;  // the pointer to actual memory
+    size_t sz;
+    vm_seg_info *next;
+};
+
 vm_env *vm_new()
 {
     vm_env *env = malloc(sizeof(vm_env));
@@ -164,4 +170,195 @@ void vm_run(vm_env *env)
     END_OPCODES;
 terminate:
     return;
+}
+
+static int vm_insts_seg_inflate(vm_env *env, char *mem, size_t sz)
+{
+    memset(&env->insts[0], 0, sizeof(env->insts));
+    memcpy(&env->insts[0], mem, sz);
+    return env->insts_count = sz / sizeof(vm_inst);
+}
+
+static int vm_insts_seg_deflate(vm_env *env, char **mem, size_t *sz)
+{
+    *sz = env->insts_count * sizeof(vm_inst);
+    *mem = malloc(*sz);
+
+    memcpy(*mem, (char *) &env->insts[0], *sz);
+
+    return *sz;
+}
+
+static int vm_cpool_seg_inflate(vm_env *env, char *mem, size_t sz)
+{
+    vm_value *src, *dst;
+    char *ptr;
+    char *end;
+    int i = 0;
+
+    memset(&env->cpool[0], 0, sizeof(env->cpool));
+
+    src = (vm_value *)mem;
+    dst = &env->cpool[0];
+    end = mem + sz;
+
+    while ((char *)src < end) {
+        memcpy(dst, src, sizeof(*dst));
+
+        if (src->type == STR) {
+            ptr = &mem[(int)src->value.vstr];
+
+            dst->value.vstr = strdup(ptr);
+
+            if (ptr < end)
+                end = ptr;
+        }
+
+        dst++;
+        src++;
+        i++;
+    }
+
+    return env->cpool_count = i++;
+}
+
+static int vm_cpool_seg_deflate(vm_env *env, char **mem, size_t *sz)
+{
+    vm_value *src, *dst;
+    char *ptr;
+
+    *sz = env->cpool_count * sizeof(vm_value);
+
+    for (int i = 0; i < env->cpool_count; i++)
+        if (env->cpool[i].type == STR)
+            *sz += strlen(env->cpool[i].value.vstr) + 1;
+
+    *mem = malloc(*sz);
+    memcpy(*mem, &env->cpool[0], env->cpool_count * sizeof(vm_value));
+
+    dst = (vm_value *)*mem;
+    src = (vm_value *)&env->cpool[0];
+    ptr = &((*mem)[ env->cpool_count * sizeof(vm_value) ]);
+
+    for (int i = 0; i < env->cpool_count; i++) {
+        if (src[i].type == STR) {
+            dst[i].value.vint = ptr - *mem; // use vint to avoid casting
+            strcpy(ptr, src[i].value.vstr);
+            ptr += strlen(src[i].value.vstr) + 1;
+        }
+    }
+
+    return *sz;
+}
+
+static int vm_temps_seg_inflate(vm_env *env, char *mem, size_t sz)
+{
+    memset(&env->temps[0], 0, sizeof(env->temps));
+    memcpy(&env->temps[0], mem, sz);
+    return env->temps_count = sz / sizeof(vm_value);
+}
+
+static int vm_temps_seg_deflate(vm_env *env, char **mem, size_t *sz)
+{
+    *sz = env->temps_count * sizeof(vm_value);
+    *mem = malloc(*sz);
+
+    memcpy(*mem, (char *) &env->temps[0], *sz);
+
+    return *sz;
+}
+
+vm_seg_info *vm_new_seg_info(char *mem, size_t sz)
+{
+    vm_seg_info *p = calloc(sizeof(vm_seg_info), 1);
+   
+    p->mem = mem;
+    p->sz = sz;
+
+    return p;
+}
+
+vm_seg_info *vm_get_next_seg_info(vm_seg_info *info)
+{
+    return (!info) ? NULL : info->next;
+}
+
+void vm_append_seg_info(vm_seg_info *head, vm_seg_info *info)
+{
+    while (head->next)
+        head = head->next;
+    head->next = info;
+}
+
+size_t vm_get_seg_size(vm_seg_info *info)
+{
+    return info->sz;
+}
+
+void *vm_get_seg_mem(vm_seg_info *info)
+{
+    return info->mem;
+}
+
+unsigned short vm_get_seg_info(vm_env *env, vm_seg_info **seg_info)
+{
+    vm_seg_info *p = *seg_info = vm_new_seg_info(NULL, 0);
+
+    vm_insts_seg_deflate(env, &p->mem, &p->sz);
+    p->next = calloc(sizeof(*p), 1);
+    p = p->next;
+
+    vm_cpool_seg_deflate(env, &p->mem, &p->sz);
+    p->next = calloc(sizeof(*p), 1);
+    p = p->next;
+
+    vm_temps_seg_deflate(env, &p->mem, &p->sz);
+    p->next = NULL;
+
+    return 3;
+}
+
+void vm_free_seg_info(vm_seg_info *seg_info)
+{
+    vm_seg_info *p;
+
+    while (seg_info) {
+        p = seg_info->next;
+        free(seg_info->mem);
+        free(seg_info);
+        seg_info = p;
+    }
+}
+
+int vm_set_seg_info(vm_env *env, const vm_seg_info *seg_info)
+{
+    int i = 0;
+
+    while (seg_info) {
+        switch (i++) {
+        case 0:
+            vm_insts_seg_inflate(env, seg_info->mem, seg_info->sz);
+            break;
+        case 1:
+            vm_cpool_seg_inflate(env, seg_info->mem, seg_info->sz);
+            break;
+        case 2:
+            vm_temps_seg_inflate(env, seg_info->mem, seg_info->sz);
+            break;
+        default:
+            break;
+        }
+        seg_info = seg_info->next;
+    }
+
+    return i;
+}
+
+void vm_seg_info_free_list(vm_seg_info *p)
+{
+    while (p) {
+        void *q = p->next;
+        free(p);
+        p = q;
+    }
 }
