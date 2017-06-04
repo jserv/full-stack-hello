@@ -7,7 +7,8 @@
 #include "opcode.h"
 
 #define NOT_IN_QUOTE '\0'
-#define IS_QUOTE(qs, c) ((qs == NOT_IN_QUOTE) ? (c == '"' || c == '\'') : c == qs)
+#define IS_QUOTE(qs, c) \
+    ((qs == NOT_IN_QUOTE) ? (c == '"' || c == '\'') : c == qs)
 #define SET_QUOTE(qs, c) \
     do {                 \
         qs = c;          \
@@ -187,12 +188,15 @@ static inline vm_operand make_operand(vm_env *env, char *line, const char *data)
         op.value.id = vm_add_const(env, STR, quoted_strdup(data));
         break;
     default:
-        printf("Error: please specify operand type for '%s' in the following line\n"
-               "       %s\n\n"
-               "Supported types:\n"
-               "       $ (constant integer)\n"
-               "       # (temp integer)\n"
-               "       ^ (constant string\n", data, line);
+        printf(
+            "Error: please specify operand type for '%s' in the following "
+            "line\n"
+            "       %s\n\n"
+            "Supported types:\n"
+            "       $ (constant integer)\n"
+            "       # (temp integer)\n"
+            "       ^ (constant string\n",
+            data, line);
         free(line);
         exit(-1);
         break;
@@ -203,17 +207,21 @@ static inline vm_operand make_operand(vm_env *env, char *line, const char *data)
 static inline int make_result(vm_env *env, char *line, const char *data)
 {
     if (data == NULL || data[0] == ';') {
-        printf("Error: missing result in the following line\n"
-               "       %s\n", line);
+        printf(
+            "Error: missing result in the following line\n"
+            "       %s\n",
+            line);
         free(line);
         exit(-1);
     }
 
     if (data[0] != '#') {
-        printf("Error: please specify result for '%s' in the following line\n"
-               "       %s\n\n"
-               "Supported types:\n"
-               "       # (temp integer)\n", data, line);
+        printf(
+            "Error: please specify result for '%s' in the following line\n"
+            "       %s\n\n"
+            "Supported types:\n"
+            "       # (temp integer)\n",
+            data, line);
         free(line);
         exit(-1);
     }
@@ -268,27 +276,27 @@ void assemble_from_fd(vm_env *env, int fd)
     free(line);
 }
 
-#define ALIGN_TYPE  long
+#define ALIGN_TYPE long
 #define ALIGN_WIDTH sizeof(ALIGN_TYPE)
 
 static inline int mem_not_empty(void *p, size_t len)
 {
     void *c = p;
 
-    while (c < (p + len) && ((ALIGN_TYPE)c % ALIGN_WIDTH)) {
-        if (*(char *)p)
+    while (c < (p + len) && ((ALIGN_TYPE) c % ALIGN_WIDTH)) {
+        if (*(char *) p)
             return 1;
         c++;
     }
 
     while (c < (p + len - ALIGN_WIDTH + 1)) {
-        if (*(ALIGN_TYPE *)c)
+        if (*(ALIGN_TYPE *) c)
             return 1;
         c += ALIGN_WIDTH;
     }
 
     while (c < (p + len)) {
-        if (*(char *)p)
+        if (*(char *) p)
             return 1;
         c++;
     }

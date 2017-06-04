@@ -198,15 +198,15 @@ static int vm_cpool_seg_inflate(vm_env *env, char *mem, size_t sz)
 
     memset(&env->cpool[0], 0, sizeof(env->cpool));
 
-    src = (vm_value *)mem;
+    src = (vm_value *) mem;
     dst = &env->cpool[0];
     end = mem + sz;
 
-    while ((char *)src < end) {
+    while ((char *) src < end) {
         memcpy(dst, src, sizeof(*dst));
 
         if (src->type == STR) {
-            ptr = &mem[(int)src->value.vstr];
+            ptr = &mem[(int) src->value.vstr];
 
             dst->value.vstr = strdup(ptr);
 
@@ -236,13 +236,13 @@ static int vm_cpool_seg_deflate(vm_env *env, char **mem, size_t *sz)
     *mem = malloc(*sz);
     memcpy(*mem, &env->cpool[0], env->cpool_count * sizeof(vm_value));
 
-    dst = (vm_value *)*mem;
-    src = (vm_value *)&env->cpool[0];
-    ptr = &((*mem)[ env->cpool_count * sizeof(vm_value) ]);
+    dst = (vm_value *) *mem;
+    src = (vm_value *) &env->cpool[0];
+    ptr = &((*mem)[env->cpool_count * sizeof(vm_value)]);
 
     for (int i = 0; i < env->cpool_count; i++) {
         if (src[i].type == STR) {
-            dst[i].value.vint = ptr - *mem; // use vint to avoid casting
+            dst[i].value.vint = ptr - *mem;  // use vint to avoid casting
             strcpy(ptr, src[i].value.vstr);
             ptr += strlen(src[i].value.vstr) + 1;
         }
@@ -271,7 +271,7 @@ static int vm_temps_seg_deflate(vm_env *env, char **mem, size_t *sz)
 vm_seg_info *vm_new_seg_info(char *mem, size_t sz)
 {
     vm_seg_info *p = calloc(sizeof(vm_seg_info), 1);
-   
+
     p->mem = mem;
     p->sz = sz;
 

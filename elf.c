@@ -322,5 +322,5 @@ int elf_read_prog_seg(elf *e, int fd, int idx, char **mem, size_t *size)
 
     *size = p->p_filesz;
 
-    return (int)p->p_filesz;
+    return (int) p->p_filesz;
 }
