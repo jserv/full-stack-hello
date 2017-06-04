@@ -14,7 +14,7 @@ typedef enum {
     LOAD_ELF_AND_EVAL       /* -x */
 } req_t;
 
-#define QUIT(code, msg...)    \
+#define FATAL(code, msg...)   \
     do {                      \
         fprintf(stderr, msg); \
         return code;          \
@@ -41,40 +41,33 @@ int main(int argc, char **argv)
     for (int i = 1; i < argc; i++) {
         if (ignore_option)
             in_file = argv[i];
-        else if (!strcmp(argv[i],
-                         "--")) /* support filename starting with a '-' */
+        else if (!strcmp(argv[i], "--")) /* support filename begin with '-' */
             ignore_option = 1;
         else if (!strcmp(argv[i], "-h"))
-            QUIT(0, "%s\n", help_text);
+            FATAL(0, "%s\n", help_text);
         else if (!strcmp(argv[i], "-w")) {
             if (req == LOAD_ELF_AND_EVAL)
-                QUIT(-1, "Error: -w and -x used together, see -h for more\n");
+                FATAL(-1, "Error: -w and -x used together, see -h\n");
             req = ASSEMBLE_AND_WRITE_ELF;
         } else if (!strcmp(argv[i], "-x")) {
             if (req == ASSEMBLE_AND_WRITE_ELF)
-                QUIT(-1, "Error: -w and -x used together, see -h for more\n");
+                FATAL(-1, "Error: -w and -x used together, see -h\n");
             req = LOAD_ELF_AND_EVAL;
         } else if (!strcmp(argv[i], "-")) {
             if (in_file)
-                QUIT(-1,
-                     "Error: specified more than one input file, see -h for "
-                     "more\n");
+                FATAL(-1, "Error: more than one input file, see -h\n");
             in_file = argv[i];
         } else if (argv[i][0] == '-')
-            QUIT(-1, "Error: unsupported argument '%s', see -h for more\n",
-                 argv[i]);
+            FATAL(-1, "Error: unsupported argument '%s', see -h\n", argv[i]);
         else if (in_file)
-            QUIT(
-                -1,
-                "Error: specified more than one input file, see -h for more\n");
+            FATAL(-1, "Error: specified more than one input file, see -h\n");
         else
             in_file = argv[i];
     }
 
-    if (!in_file) {
-        printf("Error: must specify an input file\n");
-        return -1;
-    } else {
+    if (!in_file)
+        FATAL(-1, "Error: must specify an input file\n");
+    else {
         if (!strcmp(in_file, "-"))
             in_fd = fileno(stdin);
         else
@@ -86,12 +79,12 @@ int main(int argc, char **argv)
             int i = strlen(in_file);
 
             if (!strcmp(in_file, "-"))
-                QUIT(-1,
-                     "Error: must specify output file when stdin is input\n");
+                FATAL(-1,
+                      "Error: must specify output file when stdin is input\n");
 
             if (strcmp(&in_file[i - 2], ".s") && strcmp(&in_file[i - 2], ".S"))
-                QUIT(-1, "Error: unsupported source file extension: %s\n",
-                     in_file);
+                FATAL(-1, "Error: unsupported source file extension: %s\n",
+                      in_file);
 
             out_file = strdup(in_file);
             out_file[i - 1] = 'o';
@@ -106,8 +99,8 @@ int main(int argc, char **argv)
         }
 
         if (out_fd < 0)
-            QUIT(-1, "Error: output file opening error (%s)\n",
-                 strerror(errno));
+            FATAL(-1, "Error: output file opening error (%s)\n",
+                  strerror(errno));
     }
 
     switch (req) {
@@ -126,11 +119,9 @@ int main(int argc, char **argv)
         assemble_from_fd(env, in_fd);
         len = write_to_elf(env, out_fd);
         vm_free(env);
-        if (len < 0) {
-            printf("Error: write ELF file %s failed (%s)\n", out_file,
-                   strerror(errno));
-            return -1;
-        }
+        if (len < 0)
+            FATAL(-1, "Error: write ELF file %s failed (%s)\n", out_file,
+                  strerror(errno));
         break;
     }
     case LOAD_ELF_AND_EVAL: {
@@ -142,8 +133,7 @@ int main(int argc, char **argv)
         break;
     }
     default:
-        printf("Abnormal: unknown request: %d\n", req);
-        return -1;
+        FATAL(-1, "Abnormal: unknown request: %d\n", req);
         break;
     }
 

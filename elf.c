@@ -193,7 +193,7 @@ void elf_new_prog_hdrs(elf *elf_info, unsigned short count)
 }
 
 void elf_set_prog_hdr(elf *elf_info,
-                      unsigned short index,
+                      unsigned short idx,
                       unsigned int mem_size,
                       unsigned int file_size)
 {
@@ -202,12 +202,12 @@ void elf_set_prog_hdr(elf *elf_info,
 
     file_hdr = (elf_hdr_entry *) &elf_info->elf_hdr[0];
 
-    assert(index < file_hdr->e_phnum);
+    assert(idx < file_hdr->e_phnum);
 
-    p = &(((elf_prog_hdr_entry *) (elf_info->prog_hdrs))[index]);
+    p = &(((elf_prog_hdr_entry *) (elf_info->prog_hdrs))[idx]);
     memcpy(p, &elf_prog_hdr_default, sizeof(*p));
 
-    if (index == 0) {
+    if (idx == 0) {
         p->p_offset =
             sizeof(elf_hdr_entry) + file_hdr->e_phnum * file_hdr->e_phentsize;
     } else {
@@ -240,15 +240,15 @@ int elf_write_file_hdr(int fd, elf *elf_info)
     return len;
 }
 
-int elf_write_prog_seg(elf *elf_info, int fd, unsigned short index, void *mem)
+int elf_write_prog_seg(elf *elf_info, int fd, unsigned short idx, void *mem)
 {
     elf_prog_hdr_entry *p;
     int len = 0;
 
     p = (elf_prog_hdr_entry *) elf_info->prog_hdrs;
 
-    if (p[index].p_filesz)
-        len = write(fd, mem, p[index].p_filesz);
+    if (p[idx].p_filesz)
+        len = write(fd, mem, p[idx].p_filesz);
 
     return len;
 }
@@ -299,17 +299,17 @@ int elf_read_prog_hdrs(elf *e, int fd)
     return file_hdr->e_phnum;
 }
 
-int elf_read_prog_seg(elf *e, int fd, int index, char **mem, size_t *size)
+int elf_read_prog_seg(elf *e, int fd, int idx, char **mem, size_t *size)
 {
     elf_hdr_entry *file_hdr;
     elf_prog_hdr_entry *p;
 
     file_hdr = (elf_hdr_entry *) &e->elf_hdr[0];
 
-    if (index >= file_hdr->e_phnum || !e->prog_hdrs)
+    if (idx >= file_hdr->e_phnum || !e->prog_hdrs)
         return -1;
 
-    p = &((elf_prog_hdr_entry *) e->prog_hdrs)[index];
+    p = &((elf_prog_hdr_entry *) e->prog_hdrs)[idx];
 
     if (!p->p_filesz)
         return 0;
