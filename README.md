@@ -52,6 +52,40 @@ Ran 4 tests in 0.002s
 OK
 ```
 
+## Assembler Usage
+Specify -h to obtain the description of the assembler.
+```
+$ ./as_exec -h
+Usage: as_exec [-w] [-x] [-o <out_file>] <in_file>
+       -w Assemble <in_file> and write to an ELF file, see -o below
+       -o if -w is specifed, <out_file> is used to store the object code
+       -x Load <in_file> and execute it
+
+       <in_file> the file name to be used by commands above
+```
+For example, if the assembly file in concern is tests/coverage.s
+1. Assemble an assembly source file and evaluate (execute) it.
+   ```
+   ./as_exec tests/hello.s
+   ```
+2. Assemble an assembly source file and write to default ELF file tests/hello.o.
+   ```
+   ./as_exec -w tests/hello.s
+   ```
+3. Assemble an assembly source file and write to default ELF file tests/temp.o.
+   ```
+   ./as_exec -o tests/temp.o -w tests/hello.s
+   ```
+4. Laod an assembled ELF file tests/hello.o and evaluate (rexcute) it.
+   ```
+   ./as_exec -x tests/hello.o
+   ```
+The common ELF tools, such as objdump, can be applied to the output ELF file.
+```
+objdump -x tests/hello.o
+```
+Currently, the ELF support is very limited and could be improved when volunteer shows up.
+
 ## Licensing
 `full-stack-hello` is freely redistributable under the two-clause BSD License.
 Use of this source code is governed by a BSD-style license that can be found
