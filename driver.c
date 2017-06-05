@@ -45,7 +45,12 @@ int main(int argc, char **argv)
             ignore_option = 1;
         else if (!strcmp(argv[i], "-h"))
             FATAL(0, "%s\n", help_text);
-        else if (!strcmp(argv[i], "-w")) {
+        else if (!strcmp(argv[i], "-o")) {
+            if (i++ == argc - 1)
+                FATAL(-1, "Missing output file name, see -h\n");
+            out_file = argv[i++];
+            req = ASSEMBLE_AND_WRITE_ELF;
+        } else if (!strcmp(argv[i], "-w")) {
             if (req == LOAD_ELF_AND_EVAL)
                 FATAL(-1, "Error: -w and -x used together, see -h\n");
             req = ASSEMBLE_AND_WRITE_ELF;
