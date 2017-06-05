@@ -157,6 +157,8 @@ void vm_run(vm_env *env)
     OP(ADD) : VM_CALL_HANDLER();
     OP(SUB) : VM_CALL_HANDLER();
     OP(MUL) : VM_CALL_HANDLER();
+    OP(DIV) : VM_CALL_HANDLER();
+    OP(MOD) : VM_CALL_HANDLER();
     OP(PRINT) : VM_CALL_HANDLER();
     OP(JLT) : VM_JLT();
     OP(JLE) : VM_JLE();
