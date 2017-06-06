@@ -28,8 +28,15 @@ TEST_DONE = $(TEST_SRCS:.s=.done)
 PASS_COLOR = \e[32;01m
 NO_COLOR = \e[0m
 
+UNAME_S := $(shell uname -s)
+ifeq ($(UNAME_S),Darwin)
+	PRINTF = printf
+else
+	PRINTF = env printf
+endif
+
 tests/%.done: tests/%.s
-	@./$(EXEC) $< && printf "$(PASS_COLOR)$< pass$(NO_COLOR)\n"
+	@./$(EXEC) $< && $(PRINTF) "$(PASS_COLOR)$< pass$(NO_COLOR)\n"
 check: $(EXEC) $(TEST_DONE)
 	@$(RM) $(TEST_DONE)
 
