@@ -6,6 +6,7 @@
 #include "vm.h"
 #include "vm_codegen.h"
 #include "opcode.h"
+#include "private.h"
 
 #define NOT_IN_QUOTE '\0'
 #define IS_QUOTE(qs, c) \
@@ -240,10 +241,8 @@ static void assemble_line(vm_env *env, char *line)
     vm_inst new_inst;
     const struct instruction *inst = find_inst(mnemonic);
 
-    if (!inst) {
-        printf("Error: instruction `%s' not found\n", mnemonic);
-        exit(1);
-    }
+    if (!inst)
+        FATALX(1, "instruction `%s' not found\n", mnemonic);
 
     memset(&new_inst, 0, sizeof(vm_inst));
 

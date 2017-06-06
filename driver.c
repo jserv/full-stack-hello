@@ -7,18 +7,13 @@
 #include "as.h"
 #include "opcode.h"
 #include "vm.h"
+#include "private.h"
 
 typedef enum {
     ASSEMBLE_AND_EVAL,      /* default */
     ASSEMBLE_AND_WRITE_ELF, /* -w */
     LOAD_ELF_AND_EVAL       /* -x */
 } req_t;
-
-#define FATAL(code, msg...)   \
-    do {                      \
-        fprintf(stderr, msg); \
-        return code;          \
-    } while (0)
 
 #define help_text                                                           \
     "Usage: as_exec [-w] [-x] [-o <out_file>] <in_file>\n"                  \
@@ -43,35 +38,36 @@ int main(int argc, char **argv)
             in_file = argv[i];
         else if (!strcmp(argv[i], "--")) /* support filename begin with '-' */
             ignore_option = 1;
-        else if (!strcmp(argv[i], "-h"))
-            FATAL(0, "%s\n", help_text);
-        else if (!strcmp(argv[i], "-o")) {
+        else if (!strcmp(argv[i], "-h")) {
+            printf("%s\n", help_text);
+            return 0;
+        } else if (!strcmp(argv[i], "-o")) {
             if (i++ == argc - 1)
                 FATAL(-1, "Missing output file name, see -h\n");
             out_file = argv[i++];
             req = ASSEMBLE_AND_WRITE_ELF;
         } else if (!strcmp(argv[i], "-w")) {
             if (req == LOAD_ELF_AND_EVAL)
-                FATAL(-1, "Error: -w and -x used together, see -h\n");
+                FATAL(-1, "-w and -x used together, see -h\n");
             req = ASSEMBLE_AND_WRITE_ELF;
         } else if (!strcmp(argv[i], "-x")) {
             if (req == ASSEMBLE_AND_WRITE_ELF)
-                FATAL(-1, "Error: -w and -x used together, see -h\n");
+                FATAL(-1, "-w and -x used together, see -h\n");
             req = LOAD_ELF_AND_EVAL;
         } else if (!strcmp(argv[i], "-")) {
             if (in_file)
-                FATAL(-1, "Error: more than one input file, see -h\n");
+                FATAL(-1, "more than one input file, see -h\n");
             in_file = argv[i];
         } else if (argv[i][0] == '-')
-            FATAL(-1, "Error: unsupported argument '%s', see -h\n", argv[i]);
+            FATAL(-1, "unsupported argument '%s', see -h\n", argv[i]);
         else if (in_file)
-            FATAL(-1, "Error: specified more than one input file, see -h\n");
+            FATAL(-1, "specified more than one input file, see -h\n");
         else
             in_file = argv[i];
     }
 
     if (!in_file)
-        FATAL(-1, "Error: must specify an input file\n");
+        FATAL(-1, "must specify an input file\n");
     else {
         if (!strcmp(in_file, "-"))
             in_fd = fileno(stdin);
@@ -85,10 +81,10 @@ int main(int argc, char **argv)
 
             if (!strcmp(in_file, "-"))
                 FATAL(-1,
-                      "Error: must specify output file when stdin is input\n");
+                      "must specify output file when stdin is input\n");
 
             if (strcmp(&in_file[i - 2], ".s") && strcmp(&in_file[i - 2], ".S"))
-                FATAL(-1, "Error: unsupported source file extension: %s\n",
+                FATAL(-1, "unsupported source file extension: %s\n",
                       in_file);
 
             out_file = strdup(in_file);
@@ -104,7 +100,7 @@ int main(int argc, char **argv)
         }
 
         if (out_fd < 0)
-            FATAL(-1, "Error: output file opening error (%s)\n",
+            FATAL(-1, "output file opening error (%s)\n",
                   strerror(errno));
     }
 
@@ -125,7 +121,7 @@ int main(int argc, char **argv)
         len = write_to_elf(env, out_fd);
         vm_free(env);
         if (len < 0)
-            FATAL(-1, "Error: write ELF file %s failed (%s)\n", out_file,
+            FATAL(-1, "write ELF file %s failed (%s)\n", out_file,
                   strerror(errno));
         break;
     }
@@ -138,7 +134,7 @@ int main(int argc, char **argv)
         break;
     }
     default:
-        FATAL(-1, "Abnormal: unknown request: %d\n", req);
+        FATAL(-1, "unknown request: %d\n", req);
         break;
     }
 
