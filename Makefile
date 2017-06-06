@@ -25,11 +25,11 @@ $(EXEC): $(OBJS)
 TEST_SRCS = $(wildcard tests/*.s)
 TEST_DONE = $(TEST_SRCS:.s=.done)
 
-PASS_COLOR = \x1b[32;01m
-NO_COLOR = \x1b[0m
+PASS_COLOR = \e[32;01m
+NO_COLOR = \e[0m
 
 tests/%.done: tests/%.s
-	@./$(EXEC) $< && /bin/echo -e "$(PASS_COLOR)$< pass$(NO_COLOR)\n"
+	@./$(EXEC) $< && printf "$(PASS_COLOR)$< pass$(NO_COLOR)\n"
 check: $(EXEC) $(TEST_DONE)
 	@$(RM) $(TEST_DONE)
 
