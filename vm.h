@@ -40,7 +40,7 @@ typedef struct {
 
 typedef enum {
     LABEL_NOT_FOUND = -1,
-    UNIMPLEMNET,
+    UNIMPLEMENTED,
 } vm_err_t;
 
 #define VM_T(_op) _op->type
