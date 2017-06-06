@@ -5,9 +5,9 @@ add $0 $10 #1   ; start from 10
 go:
 mul #0 #1 #0    ; result = result + n
 sub #1 $1 #1    ; n = n - 1
-jnz #1 :go      ; jump to go if #1 not zero
+jnz #1 go      ; jump to go if #1 not zero
 
-jmp :output       ; jump to output
+jmp output       ; jump to output
 add $0 $100 #1    ; should not be executed, #1 remained 0
 ; print the result
 output:

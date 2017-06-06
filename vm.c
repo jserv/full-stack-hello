@@ -158,13 +158,13 @@ int vm_find_label(vm_env *env, const char *label)
     }
 
     /* XXX: Need something like `PyErr_SetString` for error handling */
-    printf("Hooktime Error: Label \"%s\" not found\n", label);
+    printf("Label Register Error: Label \"%s\" not found\n", label);
     exit(-1);
 }
 
-void vm_hook_label(vm_env *env)
+void vm_register_label(vm_env *env)
 {
-    /* Hook label's next pc to label operand */
+    /* Register label's next pc to label operand */
     for (int i = 0; i < env->label_reference_count; ++i) {
         env->label_reference[i]->value.id = vm_find_label(env, env->label_reference[i]->label);
     }

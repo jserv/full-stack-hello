@@ -59,7 +59,7 @@ size_t vm_add_const(vm_env *, int, void *);
 size_t vm_add_inst(vm_env *, vm_inst);
 size_t vm_add_label(vm_env *, const int, char *);
 int vm_find_label(vm_env *, const char *);
-void vm_hook_label(vm_env *);
+void vm_register_label(vm_env *);
 
 void vm_hook_opcode_handler(vm_env *, int, vm_handler);
 

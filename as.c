@@ -189,7 +189,7 @@ static inline vm_operand make_operand(vm_env *env, char *line, const char *data)
         op.type = CONST;
         op.value.id = vm_add_const(env, STR, quoted_strdup(data));
         break;
-    case ':':
+    default:
         /*
          * This will not fill the label's next pc to op.value.id
          * when calling `make_operand`.
@@ -198,18 +198,7 @@ static inline vm_operand make_operand(vm_env *env, char *line, const char *data)
          */
         op.type = LABEL;
         op.value.id = LABEL_NOT_FOUND;
-        op.label = strdup(data + 1);
-        break;
-    default:
-        printf("Error: please specify operand type for '%s' in the following line\n"
-               "       %s\n\n"
-               "Supported types:\n"
-               "       $ (constant integer)\n"
-               "       # (temp integer)\n"
-               "       ^ (constant string)\n"
-               "       : (label)\n", data, line);
-        free(line);
-        exit(-1);
+        op.label = strdup(data);
         break;
     }
     return op;
