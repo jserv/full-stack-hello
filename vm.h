@@ -38,7 +38,12 @@ typedef struct {
     int next_pc;
 } vm_label;
 
-#define LABLE_NOT_FOUND -1
+typedef enum {
+    LABEL_NOT_FOUND = -1,
+    UNIMPLEMNET_ERR1,
+    UNIMPLEMNET_ERR2,
+    UNIMPLEMNET_ERR3,
+} vm_err_t;
 
 #define VM_T(_op) _op->type
 #define VM_INT(_op) _op->value.vint

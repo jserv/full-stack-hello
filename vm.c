@@ -27,7 +27,7 @@
 #define END_OPCODES
 
 #define VM_GOTO(n)  \
-    if (VM_T(OPCODE.op1) == LABEL && n == -1) {  \
+    if (OPCODE.op1.type == LABEL && n == -1) {  \
         printf("Error: Undefined label \"%s\".\n", OPCODE.op1.label); \
         exit(-1);                             \
     }                                         \
@@ -38,11 +38,11 @@
     do {                                                         \
         int gle = vm_get_op_value(env, &OPCODE.op1)->value.vint; \
         if (gle cond 0) {                                        \
-            if (VM_T(OPCODE.op2) == LABEL && VM_INT(OPCODE.op2) == -1) {      \
+            if (OPCODE.op2.type == LABEL && OPCODE.op2.value.id == -1) {      \
                 printf("Error: Undefined label \"%s\".\n", OPCODE.op2.label); \
                 exit(-1);                                        \
             }                                                    \
-            pc = VM_INT(OPCODE.op2);                             \
+            pc = OPCODE.op2.value.id;                            \
             goto *labels[OPCODE.opcode];                         \
         }                                                        \
         DISPATCH;                                                \
@@ -152,7 +152,7 @@ int vm_find_label(vm_env *env, const char *label)
 {
     /* FIXME: Better label search method */
     for (int i = 0; i < env->labels_count; ++i) {
-        if (strcmp(env->labels[i].label, label) == 0) {
+        if (!strcmp(env->labels[i].label, label)) {
             return env->labels[i].next_pc;
         }
     }
