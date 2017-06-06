@@ -11,6 +11,6 @@ jmp :output       ; jump to output
 add $0 $100 #1    ; should not be executed, #1 remained 0
 ; print the result
 output:
-print ^1+2+...+10=
+print "1+2+...+10="
 print #0        ; check result is 55
 print #1        ; check #1 is 0
