@@ -197,7 +197,7 @@ static inline vm_operand make_operand(vm_env *env, char *line, const char *data)
             "Supported types:\n"
             "       $ (constant integer)\n"
             "       # (temp integer)\n"
-            "       ^ (constant string\n",
+            "       \" (string literal)\n",
             data, line);
         free(line);
         exit(-1);
