@@ -1,7 +1,7 @@
 jmp #5                      ; keep pass/fail at fixed location
-print ^cond_jump_insts_ok   ; all conditional jump instructions pass this test
+print "cond_jump_insts_ok"   ; all conditional jump instructions pass this test
 halt
-print ^cond_jump_insts_fail ; any fail
+print "cond_jump_insts_fail"; any fail
 halt
 sub $0 $1 #1                ; operand -1
 add $0 $0 #2                ; operand 0

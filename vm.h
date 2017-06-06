@@ -45,6 +45,8 @@ typedef struct {
 
 typedef struct __vm_env vm_env;
 
+typedef struct __vm_seg_info vm_seg_info;
+
 vm_env *vm_new();
 void vm_free(vm_env *);
 
