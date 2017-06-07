@@ -11,3 +11,7 @@ mul $-2 $2 #4           ; multiply: (-2)*(2)
 mul $-2 $-40 #5         ; multiply: (-2)*(-40)
 print #4
 print #5
+div $4 $2 #6            ; divide: 4 / 2 = 2
+mod $5 $2 #7            ; modulo: 5 % 2 = 1
+print #6
+print #7
