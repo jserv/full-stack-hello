@@ -37,7 +37,7 @@ static void mul_impl(VM_HANDLER_ARGS)
 
 static void div_impl(VM_HANDLER_ARGS)
 {
-    if (VM_T(op1) == INT && VM_T(op1) == VM_T(op2)) {
+    if (VM_T(op1) == INT && VM_T(op1) == VM_T(op2) && VM_INT(op2) != 0) {
         VM_INT(result) = VM_INT(op1) / VM_INT(op2);
     } else {
         UNIMPL;
@@ -46,7 +46,7 @@ static void div_impl(VM_HANDLER_ARGS)
 
 static void mod_impl(VM_HANDLER_ARGS)
 {
-    if (VM_T(op1) == INT && VM_T(op1) == VM_T(op2)) {
+    if (VM_T(op1) == INT && VM_T(op1) == VM_T(op2) && VM_INT(op2) != 0) {
         VM_INT(result) = VM_INT(op1) % VM_INT(op2);
     } else {
         UNIMPL;
