@@ -36,7 +36,7 @@ else
 endif
 
 tests/%.done: tests/%.s
-	@./$(EXEC) $< && $(PRINTF) "$(PASS_COLOR)$< pass$(NO_COLOR)\n"
+	@./$(EXEC) $< && $(PRINTF) "*** $< *** $(PASS_COLOR)[ Verified ]$(NO_COLOR)\n"
 check: $(EXEC) $(TEST_DONE)
 	@$(RM) $(TEST_DONE)
 
