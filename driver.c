@@ -80,12 +80,10 @@ int main(int argc, char **argv)
             int i = strlen(in_file);
 
             if (!strcmp(in_file, "-"))
-                FATAL(-1,
-                      "must specify output file when stdin is input\n");
+                FATAL(-1, "must specify output file when stdin is input\n");
 
             if (strcmp(&in_file[i - 2], ".s") && strcmp(&in_file[i - 2], ".S"))
-                FATAL(-1, "unsupported source file extension: %s\n",
-                      in_file);
+                FATAL(-1, "unsupported source file extension: %s\n", in_file);
 
             out_file = strdup(in_file);
             out_file[i - 1] = 'o';
@@ -100,8 +98,7 @@ int main(int argc, char **argv)
         }
 
         if (out_fd < 0)
-            FATAL(-1, "output file opening error (%s)\n",
-                  strerror(errno));
+            FATAL(-1, "output file opening error (%s)\n", strerror(errno));
     }
 
     switch (req) {
