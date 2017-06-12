@@ -29,6 +29,32 @@
     pc = n;        \
     goto *labels[OPCODE.opcode]
 
+#define VM_PUSH(n)                           \
+    do {                                     \
+        sp--;                                \
+        env->temps[sp].type = INT;           \
+        env->temps[sp].value.vint = (int) n; \
+    } while (0)
+
+#define VM_POP(n)                               \
+    do {                                        \
+        n = (size_t) env->temps[sp].value.vint; \
+        sp++;                                   \
+    } while (0)
+
+#define VM_CALL(n)   \
+    do {             \
+        VM_PUSH(pc); \
+        VM_GOTO(n);  \
+    } while (0)
+
+#define VM_RET()    \
+    do {            \
+        from = pc;  \
+        VM_POP(pc); \
+        DISPATCH;   \
+    } while (0)
+
 #define VM_J_TYPE_INST(cond)                                     \
     do {                                                         \
         int gle = vm_get_op_value(env, &OPCODE.op1)->value.vint; \
@@ -152,6 +178,8 @@ static inline vm_value *vm_get_op_value(vm_env *env, const vm_operand *op)
 void vm_run(vm_env *env)
 {
     size_t pc = 0;
+    size_t sp = TEMPS_MAX_SIZE;  // stack starts from the end of 'temps' region.
+    size_t from = 0;
     BEGIN_OPCODES;
 
     OP(ADD) : VM_CALL_HANDLER();
@@ -167,6 +195,8 @@ void vm_run(vm_env *env)
     OP(JGT) : VM_JGT();
     OP(JNZ) : VM_JNZ();
     OP(JMP) : VM_GOTO(OPCODE.op1.value.id);
+    OP(CALL) : VM_CALL(OPCODE.op1.value.id);
+    OP(RET) : VM_RET();
 
     OP(HALT) : goto terminate;
 

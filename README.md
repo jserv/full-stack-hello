@@ -23,6 +23,8 @@ allow the execution of classic Hello World program.
 | OP_JGT | jump to specified address (in operand 2) if operand 1 is greater than 0 |
 | OP_JNZ | jump to specified address (in operand 2) if operand 1 is not equal to 0 |
 | OP_JMP | jump to specified address |
+| OP_CALL | call to specified address |
+| OP_RET | return to where called from |
 | OP_HALT | terminate VM |
 
 ## Build and Verify

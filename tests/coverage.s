@@ -15,3 +15,10 @@ div $4 $2 #6            ; divide: 4 / 2 = 2
 mod $5 $2 #7            ; modulo: 5 % 2 = 1
 print #6
 print #7
+call #18
+halt
+print $66
+call #21
+ret
+print $77
+ret
