@@ -59,6 +59,7 @@
     do {                                                         \
         int gle = vm_get_op_value(env, &OPCODE.op1)->value.vint; \
         if (gle cond 0) {                                        \
+            from = pc;                                           \
             pc = OPCODE.op2.value.id;                            \
             goto *labels[OPCODE.opcode];                         \
         }                                                        \
@@ -178,8 +179,9 @@ static inline vm_value *vm_get_op_value(vm_env *env, const vm_operand *op)
 void vm_run(vm_env *env)
 {
     size_t pc = 0;
-    size_t sp = TEMPS_MAX_SIZE;  // stack starts from the end of 'temps' region.
-    size_t from = 0;
+    size_t sp = TEMPS_MAX_SIZE;  // stack runs from the end of 'temps' region.
+    size_t from = 0; // debug can leverage the PC before branch/return.
+    (void)from; // fix unsed warning, shall be removed once 'from' is used.
     BEGIN_OPCODES;
 
     OP(ADD) : VM_CALL_HANDLER();
@@ -239,7 +241,7 @@ static int vm_cpool_seg_inflate(vm_env *env, char *mem, size_t sz)
         memcpy(dst, src, sizeof(*dst));
 
         if (src->type == STR) {
-            ptr = &mem[(int) src->value.vstr];
+            ptr = &mem[(long) src->value.vstr];
 
             dst->value.vstr = strdup(ptr);
 
