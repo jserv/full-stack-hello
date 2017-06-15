@@ -25,7 +25,7 @@
         goto *labels[OPCODE.opcode]; \
     } while (0)
 
-#define GOTO(env, n)                 \
+#define GOTO(n)                      \
     do {                             \
         env->r.from = env->r.pc;     \
         env->r.to = n;               \
@@ -37,23 +37,23 @@
 
 static inline void vm_push(vm_env *env, size_t n);
 
-#define VM_CALL(env, n)          \
+#define VM_CALL(n)               \
     do {                         \
         vm_push(env, env->r.pc); \
-        GOTO(env, n);            \
+        GOTO(n);                 \
     } while (0)
 
-#define VM_RET(env)                  \
+#define VM_RET()                     \
     do {                             \
         size_t pc = vm_pop(env) + 1; \
-        GOTO(env, pc);               \
+        GOTO(pc);                    \
     } while (0)
 
 #define VM_J_TYPE_INST(cond)                                     \
     do {                                                         \
         int gle = vm_get_op_value(env, &OPCODE.op1)->value.vint; \
         if (gle cond 0)                                          \
-            GOTO(env, OPCODE.op2.value.id);                      \
+            GOTO(OPCODE.op2.value.id);                           \
         DISPATCH;                                                \
     } while (0)
 
@@ -206,9 +206,9 @@ void vm_run(vm_env *env)
     OP(JGE) : VM_JGE();
     OP(JGT) : VM_JGT();
     OP(JNZ) : VM_JNZ();
-    OP(JMP) : GOTO(env, OPCODE.op1.value.id);
-    OP(CALL) : VM_CALL(env, OPCODE.op1.value.id);
-    OP(RET) : VM_RET(env);
+    OP(JMP) : GOTO(OPCODE.op1.value.id);
+    OP(CALL) : VM_CALL(OPCODE.op1.value.id);
+    OP(RET) : VM_RET();
 
     OP(HALT) : goto terminate;
 
