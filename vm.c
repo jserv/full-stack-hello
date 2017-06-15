@@ -28,6 +28,7 @@
 #define GOTO(env, n)                 \
     do {                             \
         env->r.from = env->r.pc;     \
+        env->r.to = n;               \
         env->r.pc = n;               \
         goto *labels[OPCODE.opcode]; \
     } while (0)
@@ -88,7 +89,8 @@ static inline void vm_push(vm_env *env, size_t n);
 typedef struct {
     size_t pc;    // program counter.
     size_t sp;    // stack runs from the end of 'temps' region.
-    size_t from;  // debug can leverage the PC before branch/return.
+    size_t from;  // the immediate PC before last branch/return.
+    size_t to;    // the immediate PC after last branch/return.
 } vm_regs;
 
 struct __vm_env {
