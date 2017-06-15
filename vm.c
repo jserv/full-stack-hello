@@ -9,7 +9,7 @@
 #error "Only gcc is supported at present"
 #endif
 
-#define OPCODE env->insts[pc]
+#define OPCODE env->insts[env->r.pc]
 #define OPCODE_IMPL(inst) env->impl[inst.opcode]
 #define HANDLER OPCODE.handler
 
@@ -19,50 +19,40 @@
     const static void *labels[] = {OP_LABELS}; \
     goto *labels[OPCODE.opcode]
 
-#define DISPATCH \
-    ++pc;        \
-    goto *labels[OPCODE.opcode]
+#define DISPATCH                     \
+    do {                             \
+        ++env->r.pc;                 \
+        goto *labels[OPCODE.opcode]; \
+    } while (0)
+
+#define GOTO(env, n)                 \
+    do {                             \
+        env->r.from = env->r.pc;     \
+        env->r.pc = n;               \
+        goto *labels[OPCODE.opcode]; \
+    } while (0)
 
 #define END_OPCODES
 
-#define VM_GOTO(n) \
-    pc = n;        \
-    goto *labels[OPCODE.opcode]
+static inline void vm_push(vm_env *env, size_t n);
 
-#define VM_PUSH(n)                           \
-    do {                                     \
-        sp--;                                \
-        env->temps[sp].type = INT;           \
-        env->temps[sp].value.vint = (int) n; \
+#define VM_CALL(env, n)          \
+    do {                         \
+        vm_push(env, env->r.pc); \
+        GOTO(env, n);            \
     } while (0)
 
-#define VM_POP(n)                               \
-    do {                                        \
-        n = (size_t) env->temps[sp].value.vint; \
-        sp++;                                   \
-    } while (0)
-
-#define VM_CALL(n)   \
-    do {             \
-        VM_PUSH(pc); \
-        VM_GOTO(n);  \
-    } while (0)
-
-#define VM_RET()    \
-    do {            \
-        from = pc;  \
-        VM_POP(pc); \
-        DISPATCH;   \
+#define VM_RET(env)                  \
+    do {                             \
+        size_t pc = vm_pop(env) + 1; \
+        GOTO(env, pc);               \
     } while (0)
 
 #define VM_J_TYPE_INST(cond)                                     \
     do {                                                         \
         int gle = vm_get_op_value(env, &OPCODE.op1)->value.vint; \
-        if (gle cond 0) {                                        \
-            from = pc;                                           \
-            pc = OPCODE.op2.value.id;                            \
-            goto *labels[OPCODE.opcode];                         \
-        }                                                        \
+        if (gle cond 0)                                          \
+            GOTO(env, OPCODE.op2.value.id);                      \
         DISPATCH;                                                \
     } while (0)
 
@@ -95,11 +85,18 @@
 /* OPCODE impl max size */
 #define OPCODE_IMPL_MAX_SIZE 256
 
+typedef struct {
+    size_t pc;    // program counter.
+    size_t sp;    // stack runs from the end of 'temps' region.
+    size_t from;  // debug can leverage the PC before branch/return.
+} vm_regs;
+
 struct __vm_env {
     vm_inst insts[INSTS_MAX_SIZE];             /* Program instructions */
     vm_value cpool[CPOOL_MAX_SIZE];            /* Constant pool */
     vm_value temps[TEMPS_MAX_SIZE];            /* Temporary storage */
     vm_opcode_impl impl[OPCODE_IMPL_MAX_SIZE]; /* OPCODE impl */
+    vm_regs r;
     int insts_count;
     int cpool_count;
     int temps_count;
@@ -115,6 +112,7 @@ vm_env *vm_new()
 {
     vm_env *env = malloc(sizeof(vm_env));
     memset(env, 0, sizeof(vm_env));
+    env->r.sp = TEMPS_MAX_SIZE;  // stack runs from the end of 'temps' region.
     return env;
 }
 
@@ -144,6 +142,20 @@ size_t vm_add_inst(vm_env *env, vm_inst inst)
     env->insts[env->insts_count] = inst;
 
     return env->insts_count++;
+}
+
+static inline void vm_push(vm_env *env, size_t n)
+{
+    env->r.sp--;
+    env->temps[env->r.sp].type = INT;
+    env->temps[env->r.sp].value.vint = (int) n;
+}
+
+static inline size_t vm_pop(vm_env *env)
+{
+    size_t n = (size_t) env->temps[env->r.sp].value.vint;
+    env->r.sp++;
+    return n;
 }
 
 void vm_hook_opcode_handler(vm_env *env, int opcode, vm_handler handler)
@@ -178,10 +190,6 @@ static inline vm_value *vm_get_op_value(vm_env *env, const vm_operand *op)
 
 void vm_run(vm_env *env)
 {
-    size_t pc = 0;
-    size_t sp = TEMPS_MAX_SIZE;  // stack runs from the end of 'temps' region.
-    size_t from = 0; // debug can leverage the PC before branch/return.
-    (void)from; // fix unsed warning, shall be removed once 'from' is used.
     BEGIN_OPCODES;
 
     OP(ADD) : VM_CALL_HANDLER();
@@ -196,9 +204,9 @@ void vm_run(vm_env *env)
     OP(JGE) : VM_JGE();
     OP(JGT) : VM_JGT();
     OP(JNZ) : VM_JNZ();
-    OP(JMP) : VM_GOTO(OPCODE.op1.value.id);
-    OP(CALL) : VM_CALL(OPCODE.op1.value.id);
-    OP(RET) : VM_RET();
+    OP(JMP) : GOTO(env, OPCODE.op1.value.id);
+    OP(CALL) : VM_CALL(env, OPCODE.op1.value.id);
+    OP(RET) : VM_RET(env);
 
     OP(HALT) : goto terminate;
 
