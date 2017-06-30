@@ -33,6 +33,7 @@ typedef struct {
 
 #define VM_T(_op) _op->type
 #define VM_INT(_op) _op->value.vint
+#define VM_UINT(_op) ((unsigned int) _op->value.vint)
 
 typedef struct __vm_env vm_env;
 
