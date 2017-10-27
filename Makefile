@@ -3,8 +3,13 @@ EXEC = as_exec
 CC ?= gcc
 CFLAGS = -Wall -std=gnu99 -g
 
+GIT_HOOKS := .git/hooks/applie
 .PHONY: all
-all: $(EXEC)
+all: $(GIT_HOOKS) $(EXEC)
+
+$(GIT_HOOKS):
+	@scripts/install-git-hooks
+	@echo
 
 OBJS = \
 	vm.o \
