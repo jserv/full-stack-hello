@@ -1,5 +1,3 @@
-[![Build Status](https://travis-ci.org/jserv/full-stack-hello.svg?branch=master)](https://travis-ci.org/jserv/full-stack-hello)
-
 # full-stack-hello
 
 Implement minimal instruction set and assembler/compiler in order to
