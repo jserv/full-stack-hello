@@ -11,7 +11,6 @@
 
 #define OPCODE env->insts[env->r.pc]
 #define OPCODE_IMPL(inst) env->impl[inst.opcode]
-#define HANDLER OPCODE.handler
 
 #define OP(name) OP_##name
 
@@ -64,15 +63,16 @@ static inline void vm_push(vm_env *env, size_t n);
 #define VM_JGT() VM_J_TYPE_INST(>)
 #define VM_JNZ() VM_J_TYPE_INST(!=)
 
-#define VM_CALL_HANDLER()                               \
-    do {                                                \
-        if (OPCODE_IMPL(OPCODE).handler)                \
-            OPCODE_IMPL(OPCODE).handler(                \
-                vm_get_op_value(env, &OPCODE.op1),      \
-                vm_get_op_value(env, &OPCODE.op2),      \
-                vm_get_temp_value(env, OPCODE.result)); \
-        DISPATCH;                                       \
+/* clang-format off */
+#define VM_CALL_HANDLER()                                               \
+    do {                                                                \
+        if (OPCODE_IMPL(OPCODE))                                        \
+            OPCODE_IMPL(OPCODE) (vm_get_op_value(env, &OPCODE.op1),     \
+                                 vm_get_op_value(env, &OPCODE.op2),     \
+                                 vm_get_temp_value(env, OPCODE.result));\
+        DISPATCH;                                                       \
     } while (0)
+/* clang-format on */
 
 /* Constant pool max size */
 #define CPOOL_MAX_SIZE 100
@@ -94,10 +94,10 @@ typedef struct {
 } vm_regs;
 
 struct __vm_env {
-    vm_inst insts[INSTS_MAX_SIZE];             /* Program instructions */
-    vm_value cpool[CPOOL_MAX_SIZE];            /* Constant pool */
-    vm_value temps[TEMPS_MAX_SIZE];            /* Temporary storage */
-    vm_opcode_impl impl[OPCODE_IMPL_MAX_SIZE]; /* OPCODE impl */
+    vm_inst insts[INSTS_MAX_SIZE];         /* Program instructions */
+    vm_value cpool[CPOOL_MAX_SIZE];        /* Constant pool */
+    vm_value temps[TEMPS_MAX_SIZE];        /* Temporary storage */
+    vm_handler impl[OPCODE_IMPL_MAX_SIZE]; /* OPCODE impl */
     vm_regs r;
     int insts_count;
     int cpool_count;
@@ -162,8 +162,7 @@ static inline size_t vm_pop(vm_env *env)
 
 void vm_hook_opcode_handler(vm_env *env, int opcode, vm_handler handler)
 {
-    env->impl[opcode].opcode = opcode;
-    env->impl[opcode].handler = handler;
+    env->impl[opcode] = handler;
 }
 
 static inline size_t vm_get_temp(vm_env *env)
