@@ -1,7 +1,7 @@
 #include <stdio.h>
 
-#include "vm.h"
 #include "opcode.h"
+#include "vm.h"
 
 #define UNIMPL                                       \
     do {                                             \
@@ -55,7 +55,7 @@ static void mod_impl(VM_HANDLER_ARGS)
 
 static void and_impl(VM_HANDLER_ARGS)
 {
-    if (VM_T(op1) == INT && VM_T(op1) == INT) {
+    if (VM_T(op1) == INT && VM_T(op2) == INT) {
         VM_INT(result) = VM_INT(op1) & VM_INT(op2);
     } else {
         UNIMPL;
@@ -64,7 +64,7 @@ static void and_impl(VM_HANDLER_ARGS)
 
 static void or_impl(VM_HANDLER_ARGS)
 {
-    if (VM_T(op1) == INT && VM_T(op1) == INT) {
+    if (VM_T(op1) == INT && VM_T(op2) == INT) {
         VM_INT(result) = VM_INT(op1) | VM_INT(op2);
     } else {
         UNIMPL;
