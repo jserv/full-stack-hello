@@ -1,9 +1,9 @@
 #include <stdlib.h>
 #include <string.h>
 
+#include "opcode.h"
 #include "vm.h"
 #include "vm_codegen.h"
-#include "opcode.h"
 
 #if !defined(__GNUC__)
 #error "Only gcc is supported at present"
@@ -36,10 +36,17 @@
 
 static inline void vm_push(vm_env *env, size_t n);
 
-#define VM_CALL(n)               \
-    do {                         \
-        vm_push(env, env->r.pc); \
-        GOTO(n);                 \
+#define VM_CALL()                                                 \
+    do {                                                          \
+        vm_push(env, env->r.pc);                                  \
+        size_t n = vm_get_op_value(env, &OPCODE.op1)->value.vint; \
+        GOTO(n);                                                  \
+    } while (0)
+
+#define VM_JMP()                                                  \
+    do {                                                          \
+        size_t n = vm_get_op_value(env, &OPCODE.op1)->value.vint; \
+        GOTO(n);                                                  \
     } while (0)
 
 #define VM_RET()                     \
@@ -48,12 +55,14 @@ static inline void vm_push(vm_env *env, size_t n);
         GOTO(pc);                    \
     } while (0)
 
-#define VM_J_TYPE_INST(cond)                                     \
-    do {                                                         \
-        int gle = vm_get_op_value(env, &OPCODE.op1)->value.vint; \
-        if (gle cond 0)                                          \
-            GOTO(OPCODE.op2.value.id);                           \
-        DISPATCH;                                                \
+#define VM_J_TYPE_INST(cond)                                          \
+    do {                                                              \
+        int gle = vm_get_op_value(env, &OPCODE.op1)->value.vint;      \
+        if (gle cond 0) {                                             \
+            size_t n = vm_get_op_value(env, &OPCODE.op1)->value.vint; \
+            GOTO(n);                                                  \
+        }                                                             \
+        DISPATCH;                                                     \
     } while (0)
 
 #define VM_JLT() VM_J_TYPE_INST(<)
@@ -212,8 +221,8 @@ void vm_run(vm_env *env)
     OP(JGE) : VM_JGE();
     OP(JGT) : VM_JGT();
     OP(JNZ) : VM_JNZ();
-    OP(JMP) : GOTO(OPCODE.op1.value.id);
-    OP(CALL) : VM_CALL(OPCODE.op1.value.id);
+    OP(JMP) : VM_JMP();
+    OP(CALL) : VM_CALL();
     OP(RET) : VM_RET();
 
     OP(HALT) : goto terminate;
