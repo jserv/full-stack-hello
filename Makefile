@@ -3,7 +3,7 @@ EXEC = as_exec
 CC ?= gcc
 CFLAGS = -Wall -std=gnu99 -g
 
-GIT_HOOKS := .git/hooks/applie
+GIT_HOOKS := .git/hooks/applied
 .PHONY: all
 all: $(GIT_HOOKS) $(EXEC)
 
