@@ -59,7 +59,7 @@ static inline void vm_push(vm_env *env, size_t n);
     do {                                                              \
         int gle = vm_get_op_value(env, &OPCODE.op1)->value.vint;      \
         if (gle cond 0) {                                             \
-            size_t n = vm_get_op_value(env, &OPCODE.op1)->value.vint; \
+            size_t n = vm_get_op_value(env, &OPCODE.op2)->value.vint; \
             GOTO(n);                                                  \
         }                                                             \
         DISPATCH;                                                     \
