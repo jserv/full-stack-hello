@@ -1,6 +1,7 @@
 #include <stdlib.h>
 #include <string.h>
 
+#include "hash.h"
 #include "opcode.h"
 #include "vm.h"
 #include "vm_codegen.h"
@@ -95,6 +96,9 @@ static inline void vm_push(vm_env *env, size_t n);
 /* OPCODE impl max size */
 #define OPCODE_IMPL_MAX_SIZE 256
 
+/* Label hash table size */
+#define LABEL_HASH_TABLE_SIZE 49157
+
 typedef struct {
     size_t pc;    // program counter.
     size_t sp;    // stack runs from the end of 'temps' region.
@@ -103,10 +107,11 @@ typedef struct {
 } vm_regs;
 
 struct __vm_env {
-    vm_inst insts[INSTS_MAX_SIZE];         /* Program instructions */
-    vm_value cpool[CPOOL_MAX_SIZE];        /* Constant pool */
-    vm_value temps[TEMPS_MAX_SIZE];        /* Temporary storage */
+    vm_inst insts[INSTS_MAX_SIZE];  /* Program instructions */
+    vm_value cpool[CPOOL_MAX_SIZE]; /* Constant pool */
+    vm_value temps[TEMPS_MAX_SIZE]; /* Temporary storage (stack & heap) */
     vm_handler impl[OPCODE_IMPL_MAX_SIZE]; /* OPCODE impl */
+    vm_label *labels[LABEL_HASH_TABLE_SIZE];   /* Label hash table */
     vm_regs r;
     int insts_count;
     int cpool_count;
@@ -129,7 +134,39 @@ vm_env *vm_new()
 
 void vm_free(vm_env *env)
 {
+    for (vm_label **i = env->labels; i < env->labels + LABEL_HASH_TABLE_SIZE;
+         ++i) {
+        vm_label *tmp = *i;
+        while (tmp != NULL) {
+            vm_label *p = tmp->next;
+            free(tmp);
+            tmp = p;
+        }
+    }
     free(env);
+}
+
+int vm_find_label(vm_env *env, const char *label)
+{
+    unsigned hash = hash_djb2(label, LABEL_HASH_TABLE_SIZE);
+    vm_label *now = env->labels[hash];
+    while (now != NULL) {
+        if (!strcmp(label, now->str)) {
+            return now->to;
+        }
+        now = now->next;
+    }
+    return -1;
+}
+
+void vm_make_label(vm_env *env, const char *label, int insts_count)
+{
+    unsigned hash = hash_djb2(label, LABEL_HASH_TABLE_SIZE);
+    vm_label *new = malloc(sizeof(vm_label));
+    new->str = strdup(label);
+    new->to = insts_count;
+    new->next = env->labels[hash];
+    env->labels[hash] = new;
 }
 
 size_t vm_add_const(vm_env *env, int type, void *value)

@@ -3,10 +3,10 @@
 #include <string.h>
 
 #include "elf.h"
-#include "vm.h"
-#include "vm_codegen.h"
 #include "opcode.h"
 #include "private.h"
+#include "vm.h"
+#include "vm_codegen.h"
 
 #define NOT_IN_QUOTE '\0'
 #define IS_QUOTE(qs, c) \
@@ -177,7 +177,7 @@ static inline vm_operand make_operand(vm_env *env, char *line, const char *data)
     switch (data[0]) {
     case '$':
         op.type = CONST;
-        int temp = atoi(data + 1);
+        int temp = atoi(data + 1);  // filter first char
         op.value.id = vm_add_const(env, INT, &temp);
         break;
     case '#':
@@ -189,6 +189,18 @@ static inline vm_operand make_operand(vm_env *env, char *line, const char *data)
         op.type = CONST;
         op.value.id = vm_add_const(env, STR, quoted_strdup(data));
         break;
+    case ':':;
+        int label = vm_find_label(env, &data[1]);
+        if (~label) {
+            op.type = CONST;
+            op.value.id = vm_add_const(env, INT, &label);
+            break;
+        } else {
+            printf("Error: specified label name '%s' not found.\n", data);
+            free(line);
+            exit(-1);
+            break;
+        }
     default:
         printf(
             "Error: please specify operand type for '%s' in the following "
@@ -197,7 +209,8 @@ static inline vm_operand make_operand(vm_env *env, char *line, const char *data)
             "Supported types:\n"
             "       $ (constant integer)\n"
             "       # (temp integer)\n"
-            "       \" (string literal)\n",
+            "       \" (string literal)\n"
+            "       : (label name)\n",
             data, line);
         free(line);
         exit(-1);
@@ -265,9 +278,25 @@ void assemble_from_fd(vm_env *env, int fd)
     char *line = NULL;
     size_t size = 0;
     FILE *fp = fdopen(fd, "r");
+    int insts_count = 0;
 
+    /* preprocess label */
     while (getline(&line, &size, fp) != -1) {
         if (line[0] == ';' || line[0] == '\n')
+            continue;
+        /* Remove trailing newline feed */
+        line[strcspn(line, "\r\n")] = 0;
+        if (line[strlen(line) - 1] == ':') {
+            line[strlen(line) - 1] = 0;
+            vm_make_label(env, line, insts_count);
+        } else
+            insts_count++;
+    }
+
+    fseek(fp, 0, SEEK_SET);
+
+    while (getline(&line, &size, fp) != -1) {
+        if (line[0] == ';' || line[0] == '\n' || line[strlen(line) - 2] == ':')
             continue;
         /* Remove trailing newline feed */
         line[strcspn(line, "\r\n")] = 0;

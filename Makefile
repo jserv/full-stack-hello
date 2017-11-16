@@ -16,7 +16,8 @@ OBJS = \
 	as.o \
 	opcode.o \
 	driver.o \
-	elf.o
+	elf.o \
+	hash.o
 
 deps := $(OBJS:%.o=.%.o.d)
 
