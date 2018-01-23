@@ -146,12 +146,12 @@ void vm_free(vm_env *env)
     free(env);
 }
 
-int vm_find_label(vm_env *env, const char *label)
+int vm_find_label(vm_env *env, const char *label_name)
 {
-    unsigned hash = hash_djb2(label, LABEL_HASH_TABLE_SIZE);
+    unsigned hash = hash_djb2(label_name, LABEL_HASH_TABLE_SIZE);
     vm_label *now = env->labels[hash];
     while (now != NULL) {
-        if (!strcmp(label, now->str)) {
+        if (!strcmp(label_name, now->str)) {
             return now->to;
         }
         now = now->next;
@@ -159,14 +159,14 @@ int vm_find_label(vm_env *env, const char *label)
     return -1;
 }
 
-void vm_make_label(vm_env *env, const char *label, int insts_count)
+void vm_make_label(vm_env *env, const char *label_name, int insts_count)
 {
-    unsigned hash = hash_djb2(label, LABEL_HASH_TABLE_SIZE);
-    vm_label *new = malloc(sizeof(vm_label));
-    new->str = strdup(label);
-    new->to = insts_count;
-    new->next = env->labels[hash];
-    env->labels[hash] = new;
+    unsigned hash = hash_djb2(label_name, LABEL_HASH_TABLE_SIZE);
+    vm_label *label = malloc(sizeof(vm_label));
+    label->str = strdup(label_name);
+    label->to = insts_count;
+    label->next = env->labels[hash];
+    env->labels[hash] = label;
 }
 
 size_t vm_add_const(vm_env *env, int type, void *value)

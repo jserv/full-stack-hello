@@ -48,8 +48,8 @@ typedef struct __vm_seg_info vm_seg_info;
 vm_env *vm_new();
 void vm_free(vm_env *);
 
-int vm_find_label(vm_env *env, const char *label);
-void vm_make_label(vm_env *env, const char *label, int insts_count);
+int vm_find_label(vm_env *env, const char *label_name);
+void vm_make_label(vm_env *env, const char *label_name, int insts_count);
 
 size_t vm_add_const(vm_env *, int, void *);
 size_t vm_add_inst(vm_env *, vm_inst);
