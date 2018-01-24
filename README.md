@@ -3,6 +3,9 @@
 Implement minimal instruction set and assembler/compiler in order to
 allow the execution of classic Hello World program.
 
+## Notation usage
+
+Use `$` for a instant value, and `#` for a temporary storage
 
 ## Instruction set
 
