@@ -1,13 +1,12 @@
 # full-stack-hello
 
-Implement minimal instruction set and assembler/compiler in order to
-allow the execution of classic Hello World program.
-
-## Notation usage
-
-Use `$` for a instant value, and `#` for a temporary storage.
-
-Create a label by using `X:`, and using `:X` in any JMP/CALL instructions to jump to label `X`.
+`full-stack-hello` is a minimal virtual machine kit capable of performing
+tasks at any level of the technical stack on which a typocal 'Hello World'
+program execution depends. It means:
+* Instruction Set Architecture (ISA);
+* Virtual machine implementing the ISA;
+* Assembly and/or Compiler following the ISA;
+* Runtime support such as standard libraries and ELF;
 
 ## Instruction set
 
@@ -29,6 +28,23 @@ Create a label by using `X:`, and using `:X` in any JMP/CALL instructions to jum
 | OP_CALL | call to specified address |
 | OP_RET | return to where called from |
 | OP_HALT | terminate VM |
+
+## Assembly Notation
+
+* Registers are specified by `#` as temporary storage.
+    * `print #1` dumps the content of register `#1`.
+* An immediate value (or simply an immediate or imm) is a piece of data that
+is stored as part of the instruction itself instead of being in a memory
+location or a register.
+    * `mul $-2 $2 #4` stores the result of `(-2) * (2)` into register `#4`.
+* A valid Label name ends with `:` and is referred as `:X` in any JMP/CALL
+  instructions to jump to label `X`.
+    ```
+    A:
+    print $1
+    jmp :A
+    ```
+    * Infinite loop that dumps constant `1`.
 
 ## Build and Verify
 
@@ -91,7 +107,7 @@ The common ELF tools, such as objdump, can be applied to the output ELF file.
 ```
 objdump -x tests/hello.o
 ```
-Currently, the ELF support is very limited and could be improved when volunteer shows up.
+Currently, the ELF support is very limited and could be improved.
 
 ## Licensing
 `full-stack-hello` is freely redistributable under the two-clause BSD License.
