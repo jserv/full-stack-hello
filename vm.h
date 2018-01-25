@@ -26,6 +26,17 @@ typedef struct {
     int result;
 } vm_inst;
 
+typedef struct __vm_label {
+    int to;
+    char *str;
+    struct __vm_label *next;
+} vm_label;
+
+typedef struct {
+    int opcode;
+    vm_handler handler;
+} vm_opcode_impl;
+
 #define VM_T(_op) _op->type
 #define VM_INT(_op) _op->value.vint
 #define VM_UINT(_op) ((unsigned int) _op->value.vint)
@@ -36,6 +47,9 @@ typedef struct __vm_seg_info vm_seg_info;
 
 vm_env *vm_new();
 void vm_free(vm_env *);
+
+int vm_find_label(vm_env *env, const char *label_name);
+void vm_make_label(vm_env *env, const char *label_name, int insts_count);
 
 size_t vm_add_const(vm_env *, int, void *);
 size_t vm_add_inst(vm_env *, vm_inst);

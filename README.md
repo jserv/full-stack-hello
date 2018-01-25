@@ -5,7 +5,9 @@ allow the execution of classic Hello World program.
 
 ## Notation usage
 
-Use `$` for a instant value, and `#` for a temporary storage
+Use `$` for a instant value, and `#` for a temporary storage.
+
+Create a label by using `X:`, and using `:X` in any JMP/CALL instructions to jump to label `X`.
 
 ## Instruction set
 
