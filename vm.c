@@ -97,7 +97,7 @@ static inline void vm_push(vm_env *env, size_t n);
 #define OPCODE_IMPL_MAX_SIZE 256
 
 /* Label hash table size */
-#define LABEL_HASH_TABLE_SIZE 49157
+#define LABEL_HT_SIZE 49157
 
 typedef struct {
     size_t pc;    // program counter.
@@ -111,7 +111,7 @@ struct __vm_env {
     vm_value cpool[CPOOL_MAX_SIZE]; /* Constant pool */
     vm_value temps[TEMPS_MAX_SIZE]; /* Temporary storage (stack & heap) */
     vm_handler impl[OPCODE_IMPL_MAX_SIZE]; /* OPCODE impl */
-    vm_label *labels[LABEL_HASH_TABLE_SIZE];   /* Label hash table */
+    vm_label *labels[LABEL_HT_SIZE];       /* Label hash table */
     vm_regs r;
     int insts_count;
     int cpool_count;
@@ -134,10 +134,9 @@ vm_env *vm_new()
 
 void vm_free(vm_env *env)
 {
-    for (vm_label **i = env->labels; i < env->labels + LABEL_HASH_TABLE_SIZE;
-         ++i) {
+    for (vm_label **i = env->labels; i < env->labels + LABEL_HT_SIZE; ++i) {
         vm_label *tmp = *i;
-        while (tmp != NULL) {
+        while (tmp) {
             vm_label *p = tmp->next;
             free(tmp);
             tmp = p;
@@ -148,7 +147,7 @@ void vm_free(vm_env *env)
 
 int vm_find_label(vm_env *env, const char *label_name)
 {
-    unsigned hash = hash_djb2(label_name, LABEL_HASH_TABLE_SIZE);
+    unsigned hash = hash_djb2(label_name, LABEL_HT_SIZE);
     vm_label *now = env->labels[hash];
     while (now != NULL) {
         if (!strcmp(label_name, now->str)) {
@@ -161,7 +160,7 @@ int vm_find_label(vm_env *env, const char *label_name)
 
 void vm_make_label(vm_env *env, const char *label_name, int insts_count)
 {
-    unsigned hash = hash_djb2(label_name, LABEL_HASH_TABLE_SIZE);
+    unsigned hash = hash_djb2(label_name, LABEL_HT_SIZE);
     vm_label *label = malloc(sizeof(vm_label));
     label->str = strdup(label_name);
     label->to = insts_count;

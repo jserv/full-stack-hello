@@ -175,11 +175,12 @@ static inline vm_operand make_operand(vm_env *env, char *line, const char *data)
     }
 
     switch (data[0]) {
-    case '$':
+    case '$': {
+        int temp = atoi(data + 1); /* filter the first char */
         op.type = CONST;
-        int temp = atoi(data + 1);  // filter first char
         op.value.id = vm_add_const(env, INT, &temp);
         break;
+    }
     case '#':
         op.type = TEMP;
         op.value.id = atoi(data + 1);
@@ -189,18 +190,18 @@ static inline vm_operand make_operand(vm_env *env, char *line, const char *data)
         op.type = CONST;
         op.value.id = vm_add_const(env, STR, quoted_strdup(data));
         break;
-    case ':':;
+    case ':': {
         int label = vm_find_label(env, &data[1]);
         if (~label) {
             op.type = CONST;
             op.value.id = vm_add_const(env, INT, &label);
-            break;
         } else {
             printf("Error: specified label name '%s' not found.\n", data);
             free(line);
             exit(-1);
-            break;
         }
+        break;
+    }
     default:
         printf(
             "Error: please specify operand type for '%s' in the following "
