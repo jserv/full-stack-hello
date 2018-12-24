@@ -3,6 +3,12 @@ EXEC = as_exec
 CC ?= gcc
 CFLAGS = -Wall -std=gnu99 -g
 
+# For optimized gotos this speeds things up:
+# care must be taken that the compiler doesn't try to "optimize" the indirect
+# jumps by sharing them between all opcodes. Such optimizations can be disabled
+# on gcc by using the -fno-crossjumping flag.
+CFLAGS += -fno-crossjumping
+
 GIT_HOOKS := .git/hooks/applied
 .PHONY: all
 all: $(GIT_HOOKS) $(EXEC)
