@@ -1,7 +1,7 @@
 # full-stack-hello
 
 `full-stack-hello` is a minimal virtual machine kit capable of performing
-tasks at any level of the technical stack on which a typocal 'Hello World'
+tasks at any level of the technical stack on which a typical 'Hello World'
 program execution depends. It means:
 * Instruction Set Architecture (ISA);
 * Virtual machine implementing the ISA;
